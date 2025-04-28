@@ -1,170 +1,117 @@
-﻿@inject IDialogService DialogService
+@inject IDialogService DialogService
 @inject ISnackbar Snackbar
 @implements IDisposable
 
 @if (allState.ShowBranch)
-{
-    <MudContainer Class="mt-5">
-        <MudPaper Elevation="4" Class="p-4">
-            <MudStack Direction="Row" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
-                <MudText Typo="Typo.h5">Branches</MudText>
-                <MudButton Variant="Variant.Outlined" Color="Color.Success" StartIcon="@Icons.Material.Filled.Add" OnClick="AddButtonClicked">
-                    Add Branch
-                </MudButton>
-            </MudStack>
-
-            <MudPaper Class="mt-4" Style="max-height:580px; overflow-y:auto;">
-                <MudTable Items="Branches" Dense="true" Hover="true">
-                    <HeaderContent>
-                        <MudTh>#</MudTh>
-                        <MudTh>Id</MudTh>
-                        <MudTh>Department</MudTh>
-                        <MudTh>Branch</MudTh>
-                        <MudTh>Action</MudTh>
-                    </HeaderContent>
-                    <RowTemplate>
-                        <MudTd>@context.Id</MudTd>
-                        <MudTd>@context.Id</MudTd>
-                        <MudTd>@context.Department?.Name</MudTd>
-                        <MudTd>@context.Name</MudTd>
-                        <MudTd>
-                            <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Info" OnClick="()=>EditClicked(context)" />
-                            <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="()=>DeleteClicked(context)" />
-
-                        </MudTd>
-                    </RowTemplate>
-                    <NoRecordsContent>
-                        <MudText Class="text-center">No Branch added yet!</MudText>
-                    </NoRecordsContent>
-                </MudTable>
-            </MudPaper>
-        </MudPaper>
-    </MudContainer>
+{ <MudContainer MaxWidth="MaxWidth.False" Class="mt-8">
+    <MudPaper Class="p-4 mt-5 mx-auto" Style="width:1200px;" Elevation="6">
+        <MudStack Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="mb-4">
+            <MudText Typo="Typo.h5">Branches</MudText>
+            <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="AddBranch">
+                <MudIcon Icon="@Icons.Material.Filled.AddCircleOutline" Class="me-1" /> Add Branch
+            </MudButton>
+        </MudStack>      
+        <MudTable Items="Branches" Dense="true" Hover="true" Bordered="true" Striped="true">
+            <HeaderContent>
+                <MudTh>Id</MudTh>
+                <MudTh>Department</MudTh>
+                <MudTh>Branch</MudTh>
+                <MudTh>Actions</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd>@context.Id</MudTd>
+                <MudTd>@context.Department?.Name</MudTd>
+                <MudTd>@context.Name</MudTd>
+                <MudTd>
+                    <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Info" OnClick="@(() => EditBranch(context))" />
+                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="@(() => DeleteBranch(context))" />
+                </MudTd>
+            </RowTemplate>
+            <NoRecordsContent>
+                <MudText Class="text-center mt-4" Color="Color.Info">No Branches added yet!</MudText>
+            </NoRecordsContent>
+        </MudTable>
+    </MudPaper>
+</MudContainer>
 }
 
-<BranchDialog HandleSaveOperationEvent="HandleSaveOperationEvent"
-              Branch="Branch"
-              Departments="Departments" />
-
 @code {
-    public string Title { get; set; } = "Add";
-    Branch Branch = new();
-    public List<Department> Departments { get; set; } = new();
     public List<Branch> Branches { get; set; } = new();
+    public List<Department> Departments { get; set; } = new();
 
     protected override async Task OnInitializedAsync()
     {
-        await GetBranches();
-        await GetDepartments();
+        await LoadData();
         allState.Action += StateHasChanged;
     }
 
-    private async Task GetBranches()
+    private async Task LoadData()
     {
         Branches = await branchService.GetAll(Constants.BranchBaseUrl);
-    }
-
-    private async Task GetDepartments()
-    {
         Departments = await departmentService.GetAll(Constants.DepartmentBaseUrl);
     }
 
-    private async void AddButtonClicked()
+    private async Task AddBranch()
     {
         var parameters = new DialogParameters
-    {
-        { "Branch", new Branch() },
-        { "Departments", Departments }
-    };
-
-        var options = new MudBlazor.DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true };
-
-        var dialog = DialogService.ShowAsync<BranchDialog>("Add Branch", parameters, options);
-        var result = dialog.Result;
-
-        if (!result.Result.IsCanceled)
         {
-            await GetBranches();
-        }
+            { "Branch", new Branch() },
+            { "Departments", Departments },
+            { "Title", "Add Branch" }
+        };
+
+        var dialog = await DialogService.ShowAsync<BranchDialog>("Add Branch", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+            await LoadData();
     }
 
-    private async void EditClicked(Branch branch)
+    private async Task EditBranch(Branch branch)
     {
         var parameters = new DialogParameters
-    {
-        { "Branch", new Branch
-            {
-                Id = branch.Id,
-                Name = branch.Name,
-                DepartmentId = branch.DepartmentId,
-                Department = branch.Department
-            }
-        },
-        { "Departments", Departments }
-    };
+        {
+            { "Branch", branch },
+            { "Departments", Departments },
+            { "Title", "Update Branch" }
+        };
 
-        var options = new MudBlazor.DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true };
+        var dialog = await DialogService.ShowAsync<BranchDialog>("Update Branch", parameters);
+        var result = await dialog.Result;
 
-        var dialog = DialogService.ShowAsync<BranchDialog>("Edit Branch", parameters, options);
-        var result = dialog.Result.Result;
-
-        if (!result.IsCanceled)
-        {
-            await GetBranches();
-        }
-    }
-    
-    private async Task HandleSaveOperationEvent(Branch branch)
-    {
-        bool successCheck = false;
-        if (branch.Id > 0)
-        {
-            var result = await branchService.Update(branch, Constants.BranchBaseUrl);
-            successCheck = await DisplayMessage(result.Flag, result.Message);
-        }
-        else
-        {
-            var response = await branchService.Insert(branch, Constants.BranchBaseUrl);
-            successCheck = await DisplayMessage(response.Flag, response.Message);
-        }
-        if (successCheck)
-        {
-            Branch = new();
-            await GetBranches();
-        }
+        if (!result.Canceled)
+            await LoadData();
     }
 
-    
-
-    private async Task DeleteClicked(Branch branch)
+    private async Task DeleteBranch(Branch branch)
     {
+        var parameters = new DialogParameters
+        {
+            { "ContentText", $"Are you sure you want to delete {branch.Name}?" },
+            { "ConfirmButtonText", "Delete" },
+            { "CancelButtonText", "Cancel" },
+            { "Color", Color.Error }
+        };
 
-        var confirm = await DialogService.ShowMessageBox("Confirm Delete",$"Are you sure want to delete the {branch.Name}?","Remove","Cancel");
+        var options = new MudBlazor.DialogOptions
+        {
+            CloseButton = true,
+            MaxWidth = MaxWidth.ExtraSmall,
+            FullWidth = true
+        };
 
-        if (!(bool)confirm) return;
+        var dialog = await DialogService.ShowAsync<ConfirmDialog>("Confirm Delete", parameters, options);
+        var result = await dialog.Result;
 
-        var response = await branchService.DeleteById(branch.Id, Constants.BranchBaseUrl);
-        
-        var result = await DisplayMessage(response.Flag, response.Message);
-        
-        if (result)
-            await GetBranches();
-       
+        if (!result.Canceled)
+        {
+            var response = await branchService.DeleteById(branch.Id, Constants.BranchBaseUrl);
+            Snackbar.Add(response.Message, response.Flag ? Severity.Success : Severity.Error);
+
+            if (response.Flag)
+                await LoadData();
+        }
     }
-
-    private async Task<bool> DisplayMessage(bool flag, string message)
-    {
-        if (flag)
-        {
-            Snackbar.Add(message, Severity.Success);
-            return await Task.FromResult(true);
-        }
-        else
-        {
-            Snackbar.Add(message, Severity.Warning);
-            return await Task.FromResult(false);
-        }
-    } 
 
     public void Dispose()
     {

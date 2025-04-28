@@ -1,68 +1,55 @@
-﻿@page "/identity/account/register"
+@page "/identity/account/register"
 
-<div class="container">
-    <div class="row">
-        <div class="col-lg-4"></div>       
-        <div class="col-lg-4">
-            <EditForm Enhance Model="User" OnValidSubmit="HandleRegistration">
-                <DataAnnotationsValidator />
-                 <div class="card bg-dark d-flex justify-content-center" style="opacity:0.5; margin-top:50%; border-radius:10px; color:white; font-weight:bold">
-                    <div class="card-header text-center fs-5">Register an account</div>
-                     <div class="container">
-                         <div class="row">
-                             <div class="col-lg-4 col-md-4 col-sm-4"></div>
-                             <div class="col-lg-4 col-md-4 col-sm-4 d-flex justify-content-center">
-                                 <img style="border-radius:20px" src="../images/companylogos/netcode.jpg" height="50" width="50" />
-                             </div>
-                             <div class="col-lg-4 col-md-4 col-sm-4"></div>
-                         </div>
-                     </div>
-                    <div class="card-body">
-                         <div class="form-group">
-                             <label class="form-label">Fullname</label>
-                             <InputText @bind-Value="User.Fullname" class="form-control"></InputText>
-                         </div>
-                         <div class="form-group mt-3">
-                             <label class="form-label">Email</label>
-                             <InputText @bind-Value="User.Email" class="form-control"></InputText>
-                         </div> 
-                         <div class="form-group mt-3">
-                             <label class="form-label">Password</label>
-                             <input type="password" @bind="User.Password" class="form-control"></input>
-                         </div>  
-                         <div class="form-group mt-3">
-                             <label class="form-label">Confirm Password</label>
-                             <input type="password" @bind="User.ConfirmPassword" class="form-control"></input>
-                         </div>                         
-                         <div class="form-group mt-3">
-                             @if (ShowLoadingButton)
-                            {
-                                <ButtonLoadingSpinner></ButtonLoadingSpinner>
-                            }
-                            else
-                            {                                
-                               <button class="btn btn-outline-primary float-end" type="submit">Register</button>
-                            }
-                         </div>
-                    </div>
-                     <div class="card-footer">
-                         <span class="text-danger">
-                             Have account already? | <a class="btn-link" href="identity/account/login">Sign In</a>
-                         </span>
-                         <ValidationSummary />
-                     </div>
-                </div>
-            </EditForm>
-        </div>
-         <div class="col-lg-4"></div>
-    </div>
-</div>
+<MudContainer MaxWidth="MaxWidth.Small" Class="mt-12">
+    <MudPaper Elevation="6" Class="pa-6">
+        <MudForm @ref="form">
+            <MudStack Spacing="3">
+                <MudText Typo="Typo.h5" Align="Align.Center" Class="mb-4">
+                    Register an Account
+                </MudText>
 
-@code{
+                <MudStack AlignItems="AlignItems.Center">
+                    <MudAvatar Size="Size.Large" Class="mb-2" >
+                        <MudImage Src="../images/companylogos/netcode.jpg"></MudImage>
+                    </MudAvatar>
+                </MudStack>
+
+                <MudTextField @bind-Value="User.Fullname" Label="Full Name" For="@(() => User.Fullname)" Required="true" />
+
+                <MudTextField @bind-Value="User.Email" Label="Email" For="@(() => User.Email)" Required="true" />
+
+                <MudTextField @bind-Value="User.Password" Label="Password" InputType="InputType.Password" For="@(() => User.Password)" Required="true" />
+
+                <MudTextField @bind-Value="User.ConfirmPassword" Label="Confirm Password" InputType="InputType.Password" For="@(() => User.ConfirmPassword)" Required="true" />
+
+                @if (ShowLoadingButton)
+                {
+                    <MudProgressCircular Color="Color.Primary" Size="Size.Small" Class="mx-auto" />
+                }
+                else
+                {
+                    <MudButton Color="Color.Primary" Variant="Variant.Filled" FullWidth="true" OnClick="HandleRegistration">
+                        Register
+                    </MudButton>
+                }
+
+                <MudText Typo="Typo.caption" Align="Align.Center" Class="mt-4">
+                    Already have an account? <MudLink Href="/identity/account/login">Sign In</MudLink>
+                </MudText>
+
+            </MudStack>
+        </MudForm>
+    </MudPaper>
+</MudContainer>
+
+@code {
+    private MudForm? form;
     public bool ShowLoadingButton { get; set; } = false;
     Register User = new();
 
     [CascadingParameter] public Task<AuthenticationState> AuthenticationState { get; set; }
+    [Inject] public ISnackbar Snackbar { get; set; } = default!;
+
     protected async override Task OnInitializedAsync()
     {
         await CheckUserAuthentication();
@@ -70,31 +57,35 @@
 
     async Task HandleRegistration()
     {
+        await form.Validate();
+
+        if (!form.IsValid)
+            return;
+
         ShowLoadingButton = true;
+
         var result = await accountService.CreateAsync(User);
+
         if (result.Flag)
         {
-            await DisplayDialog(result.Message, "User Created Success");
+            Snackbar.Add(result.Message, Severity.Success);
             User = new();
         }
         else
         {
-            await DisplayDialog(result.Message, "Alert");
-
+            Snackbar.Add(result.Message, Severity.Error);
         }
-        ShowLoadingButton = false;
-    }
 
-    private async Task DisplayDialog(string content, string title)
-    {
-        await dialogService.AlertAsync(content, title);
+        ShowLoadingButton = false;
     }
 
     private async Task CheckUserAuthentication()
     {
         var user = (await AuthenticationState).User;
-        bool isUserAuthenticated = user.Identity!.IsAuthenticated;
-        if (isUserAuthenticated)
+        if (user.Identity!.IsAuthenticated)
+        {
             NavManager.NavigateTo("/home/dashboard");
+        }
     }
+
 }

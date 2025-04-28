@@ -1,90 +1,63 @@
-﻿@inject IDialogService DialogService
-
-<MudDialog >
+<MudDialog>
     <DialogContent>
-        <EditForm Model="ManageUser" Enhance On OnSubmit="Save">
-            <div class="card-border-success">
-                <div class="card-body">
-                    <div class="form-group">
-                        <label class="form-label">Name</label>
-                        <input @bind="ManageUser.Name" class="form-control" disabled/>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Email</label>
-                        <InputText @bind-Value="ManageUser.Email" class="form-control" disabled />
-                    </div>
-                    <div class="form-group mt-3 mb-3">
-                        <label class="form-label">Select Role</label>
+        <MudForm @ref="form" Model="ManageUser" Validated="OnValidated">
+            <MudText Typo="Typo.h6" Class="mb-4">Update User</MudText>
 
-                        @if (string.IsNullOrEmpty(ManageUser.Role))
-                        {
-                            string selected = ManageUser.Role!;                          
-                            <MudSelect T="string" Label="Select Role" @bind-Value="selected">
-                                @foreach (var role in SystemRoles)
-                                {
-                                    <MudSelectItem Value="@role">@role</MudSelectItem>
-                                }                               
-                            </MudSelect>
-                        }
-                        else
-                        {
-                            <MudSelect T="string" Label="Select Role">
-                                @foreach (var role in SystemRoles)
-                                {
-                                    <MudSelectItem Value="@role">@role</MudSelectItem>
-                                }
-                            </MudSelect>
-                        }
-                    </div>
-                </div>
-            </div>
-        </EditForm>      
+            <MudTextField @bind-Value="ManageUser.Name" Label="Name" Disabled="true" For="@(() => ManageUser.Name)" />
+
+            <MudTextField @bind-Value="ManageUser.Email" Label="Email" Disabled="true" For="@(() => ManageUser.Email)" />
+
+            <MudSelect @bind-Value="ManageUser.Role" Label="Select Role" Required="true" For="@(() => ManageUser.Role)">
+                @foreach (var role in SystemRoles)
+                {
+                    <MudSelectItem Value="@role.Name">@role.Name</MudSelectItem>
+                }
+            </MudSelect>
+        </MudForm>
     </DialogContent>
+
     <DialogActions>
-        <MudButton OnClick="Cancel">Cancel</MudButton>
-        <MudButton Color="Color.Primary" OnClick="Save">Ok</MudButton>
+        <MudButton OnClick="Save" Color="Color.Primary" Variant="Variant.Filled">Save</MudButton>
+        <MudButton OnClick="Cancel" Color="Color.Default" Variant="Variant.Text">Cancel</MudButton>
     </DialogActions>
 </MudDialog>
 
 @code {
+    [CascadingParameter] IMudDialogInstance MudDialog { get; set; } = default!;
     [Parameter] public ManageUser ManageUser { get; set; } = new();
     [Parameter] public List<SystemRole> SystemRoles { get; set; } = new();
-    [Parameter] public EventCallback<ManageUser> HandleSaveOperationEvent { get; set; }
+    [Inject] private ISnackbar Snackbar { get; set; }
     
-    [CascadingParameter]
-    private IMudDialogInstance MudDialog { get; set; }
-    
-    private bool IsVisible { get; set; } = false;
-    public string Title { get; set; } = "Add";
+    private MudForm form;
 
-    private async void Save()
+    private async Task Save()
     {
-        if (string.IsNullOrEmpty(ManageUser.Name) || string.IsNullOrEmpty(ManageUser.Role))
-            await dialogService.AlertAsync("You need to provide Role Name.", "Alert!");
+        await form.Validate();
+
+        if (!form.IsValid)
+        {
+            Snackbar.Add("Please correct validation errors before saving.", Severity.Warning);
+            return;
+        }
+
+        var result = await accountService.UpdateUser(ManageUser);
+        if (result.Flag)
+        {
+            MudDialog.Close(DialogResult.Ok(ManageUser));
+        }
         else
-            await HandleSaveOperationEvent.InvokeAsync(ManageUser);
+        {
+            Snackbar.Add(result.Message, Severity.Error);
+        }
     }
-    public void OpenDialog()
-    {
-        IsVisible = true;
-        StateHasChanged();
-    }    
 
-    public void ChangeTitle(string title)
+    private void Cancel()
     {
-        Title = title;
+        MudDialog.Cancel();
     }
-    public void OnValueChange(ChangeEventArgs<string, SystemRole> args)
-    {
-        ManageUser.Role = args.Value.ToString();
-    }
-    
-    private void Cancel() => MudDialog.Cancel();
 
-    public async Task OpenDialogAsync()
+    private void OnValidated()
     {
-        //var options = new DialogOptions { CloseOnEscapeKey = true };
-        var dialogReference = await DialogService.ShowAsync<UserDialog>("Update User");
-        StateHasChanged();
+        // (Opcional) Código que executa depois da validação
     }
 }

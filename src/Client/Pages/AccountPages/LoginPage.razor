@@ -1,87 +1,76 @@
-﻿@page "/identity/account/login"
+@page "/identity/account/login"
 @layout AuthenticationLayout
-<div class="container">
-    <div class="row">
-        <div class="col-lg-4"></div>
-        <div class="col-lg-4">
-            <EditForm Enhance Model="User" OnValidSubmit="HandleLogin">
-                <DataAnnotationsValidator/>
-                <div class="card bg-dark" style="opacity:0.5; margin-top:50%; border-radius:10px; color:white; font-weight:bold">
-                    <div class="card-header text-center fs-5 mb-2">Login</div>
-                    <div class="container">
-                         <div class="row">
-                             <div class="col-lg-4 col-md-4 col-sm-4"></div>
-                             <div class="col-lg-4 col-md-4 col-sm-4 d-flex justify-content-center">
-                                 <img style="border-radius:20px" src="../images/companylogos/netcode.jpg" height="50" width="50" />
-                             </div>
-                             <div class="col-lg-4 col-md-4 col-sm-4"></div>
-                         </div>
-                    </div>                    
-                    <div class="card-body">
-                        <div class="form-group mt-3">
-                            <label class="form-label">Email</label>
-                            <InputText @bind-Value="User.Email" class="form-control"></InputText>
-                        </div>
-                        <div class="form-group mt-3">
-                             <label class="form-label">Password</label>
-                             <input type="password" @bind="User.Password" class="form-control"></input>
-                        </div>
-                        <div class="form-group mt-3">
-                             @if (ShowLoadingButton)
-                            {
-                                <ButtonLoadingSpinner></ButtonLoadingSpinner>
-                            }
-                            else
-                            {                                
-                              <button class="btn btn-outline-primary float-end" type="submit">Login</button>
-                            }
-                        </div>
-                    </div>
-                    <div class="card-footer">
-                        <span class="text-danger">
-                            Don't have account? | <a class="btn-link" href="identity/account/register">Sign Up</a>
-                        </span>
-                        <ValidationSummary/>
-                    </div>
+
+<div class="d-flex justify-center align-center" style="min-height: 100vh;">
+    <MudPaper Elevation="8" Class="pa-6" Style="width: 400px; background-color: #f5f5f5;">
+            <MudForm @ref="form">
+                <div class="text-center mb-4">
+                    <MudText Typo="Typo.h5" GutterBottom="true">Login</MudText>
+                    <MudAvatar Size="Size.Large" Class="mx-auto">
+                        <MudImage Src="../images/companylogos/netcode.jpg"></MudImage>
+                    </MudAvatar>
                 </div>
-            </EditForm>
-        </div>
-         <div class="col-lg-4"></div>
-    </div>
+
+                <MudTextField @bind-Value="User.Email" Variant="Variant.Outlined" Label="Email"  For="@(() => User.Email)" Required="true" FullWidth="true" />
+                <MudTextField @bind-Value="User.Password" Variant="Variant.Outlined" Label="Password" For="@(() => User.Password)" InputType="InputType.Password" Required="true" FullWidth="true" />
+
+                @if (ShowLoadingButton)
+                {
+                    <MudButton Disabled="true" Variant="Variant.Filled" Color="Color.Primary" FullWidth="true">
+                        <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="me-2" />
+                        Loading...
+                    </MudButton>
+                }
+                else
+                {
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" OnClick="HandleLogin">
+                        Login
+                    </MudButton>
+                }
+
+                <MudText Class="mt-4" Color="Color.Error" Typo="Typo.caption" Align="Align.Center">
+                    Don't have an account? <MudLink Href="/identity/account/register">Sign Up</MudLink>
+                </MudText>
+            </MudForm>     
+    </MudPaper>
 </div>
 
-@code{
-    public bool ShowLoadingButton { get; set; } = false;
+@code {
+    private MudForm? form;
     Login User = new();
+    public bool ShowLoadingButton { get; set; } = false;
 
-    [CascadingParameter] public Task<AuthenticationState> AuthenticationState { get; set; }
-    protected async override Task OnInitializedAsync()
+    [CascadingParameter] public Task<AuthenticationState> AuthenticationState { get; set; } = default!;
+    [Inject] private ISnackbar Snackbar { get; set; } = default!;
+    protected override async Task OnInitializedAsync()
     {
         await CheckUserAuthentication();
     }
 
     async Task HandleLogin()
     {
+        await form!.Validate();
+
+        if (!form.IsValid)
+            return;
+
         ShowLoadingButton = true;
         var result = await accountService.SignInAsync(User);
+
         if (result.Flag)
         {
-            await DisplayDialog(result.Message, "Login Success");
+            Snackbar.Add(result.Message, Severity.Success);
             var customAuthStateProvider = (CustomAuthenticationStateProvider)AuthStateProvider;
             await customAuthStateProvider.UpdateAuthenticationState(new UserSession() { Token = result.Token, RefreshToken = result.RefreshToken });
             NavManager.NavigateTo("/", forceLoad: true);
         }
         else
         {
-            await DisplayDialog(result.Message, "Alert");
+            Snackbar.Add(result.Message, Severity.Info);
         }
-        ShowLoadingButton = false;
-    }
 
-    private async Task DisplayDialog(string content, string title)
-    {
-        await dialogService.AlertAsync(content, title);
-    }
+        ShowLoadingButton = false;
+    }  
 
     private async Task CheckUserAuthentication()
     {
@@ -89,5 +78,6 @@
         bool isUserAuthenticated = user.Identity!.IsAuthenticated;
         if (isUserAuthenticated)
             NavManager.NavigateTo("/home/dashboard");
+       
     }
 }

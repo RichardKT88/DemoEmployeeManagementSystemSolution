@@ -1,144 +1,111 @@
-﻿
+@inject IDialogService DialogService
 @implements IDisposable
+@inject ISnackbar Snackbar
+
 @if (allState.ShowGeneralDepartment)
 {
-    <div class="container mt-5">
-        <div class="row">
-            <div class="col-lg-12">
-                <div class="card">
-                    <div class="card-header">
-                        <h4 class="float-start">General Department</h4>
-                        <button class="btn btn-outline-success float-end" @onclick="OpenDialog"><i class="bi bi-plus-circle-dotted"></i> Add Department</button>
-                    </div>
-                    <div class="card-header" style="max-height:580px; overflow-x:hidden; overflow-y:scroll">
-                        <div class="card-body">
-                            <table class="table table-striped">
-                                <thead>
-                                    <tr>
-                                        <th scope="col">#</th>
-                                        <th scope="col">Id</th>
-                                        <th scope="col">General Department</th>
-                                        <th scope="col">Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @if(GeneralDepartments is not null)
-                                    {
-                                        int count = 1;
-                                        foreach(var item in GeneralDepartments)
-                                        {
-                                            <tr>
-                                                <th scope="row">@count</th>
-                                                <td>@item.Id</td>
-                                                <td>@item.Name</td>
-                                                <td>
-                                                    <i class="bi bi-pencil text-info" id="cursorStyle" @onclick="()=>EditClicked(item)"></i>
-                                                    <i class="bi bi-trash text-danger" id="cursorStyle" @onclick="()=>DeleteClicked(item)"></i>
-                                                </td>
-                                            </tr>
-                                            count++;
-                                        }
-                                    }
-                                    else
-                                    {
-                                        <tr>
-                                            <td colspan="4"><div class="alert alert-info text-center">No General Department added yet!</div></td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    <MudContainer MaxWidth="MaxWidth.False" Class="mt-8">
+        <MudPaper Class="p-4 mt-5 mx-auto" Style="width:1200px;" Elevation="6">
+            <MudStack Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="mb-4">
+                <MudText Typo="Typo.h5">General Departments</MudText>
+                <MudButton Color="Color.Success" Variant="Variant.Filled" OnClick="AddGeneralDepartment">
+                    <MudIcon Icon="@Icons.Material.Filled.AddCircleOutline" Class="me-1" /> Add General Department
+                </MudButton>
+            </MudStack>
+
+            <MudTable Items="GeneralDepartments" Hover="true" Bordered="true" Striped="true" Elevation="0" Dense="true">
+                <HeaderContent>
+                    <MudTh>Id</MudTh>
+                    <MudTh>General Department</MudTh>
+                    <MudTh>Action</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd>@context.Id</MudTd>
+                    <MudTd>@context.Name</MudTd>
+                    <MudTd>
+                        <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Info" Size="Size.Small" OnClick="@(() => EditGeneralDepartment(context))" />
+                        <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Size="Size.Small" OnClick="@(() => DeleteGeneralDepartment(context))" />
+                    </MudTd>
+                </RowTemplate>
+            </MudTable>
+        </MudPaper>
+    </MudContainer>
 }
-<GeneralDepartmentDialog @ref="generalDepartmentDialog" 
-    HandleSaveOperationEvent="HandleSaveOperationEvent"
-    GeneralDepartment="GeneralDepartment" />
 
-<style>
-    .cursorStyle{
-        cursor: pointer;
-    }
-</style>
 @code {
-
-    GeneralDepartmentDialog generalDepartmentDialog;
-    GeneralDepartment GeneralDepartment = new();
-    public string Title { get; set; } = "Add";
-    public List<GeneralDepartment> GeneralDepartments { get; set; }
+    GeneralDepartment generalDepartment = new();
+    public List<GeneralDepartment> GeneralDepartments = new();
 
     protected override async Task OnInitializedAsync()
     {
-        await GetGeneralDepartments();
+        await LoadData();
         allState.Action += StateHasChanged;
     }
 
-    private async Task GetGeneralDepartments()
+    private async Task LoadData()
     {
         GeneralDepartments = await generalDepartmentService.GetAll(Constants.GeneralDepartmentBaseUrl);
     }
 
-    void OpenDialog()
+    private async Task AddGeneralDepartment()
     {
-        generalDepartmentDialog?.OpenDialog();
-    }
-    //Add or Update
-    private async Task HandleSaveOperationEvent(GeneralDepartment generalDepartment)
-    {
-        bool successCheck = false;
-        if (generalDepartment.Id > 0)
+        var parameters = new DialogParameters
         {
-            var result = await generalDepartmentService.Update(generalDepartment, Constants.GeneralDepartmentBaseUrl);
-            successCheck = await DisplayMessage(result.Flag, result.Message);
-        }
-        else
-        {
-            var response = await generalDepartmentService.Insert(generalDepartment, Constants.GeneralDepartmentBaseUrl);
-            successCheck = await DisplayMessage(response.Flag, response.Message);        
-        }
-        if (successCheck)
-        {
-            GeneralDepartment = new();
-            await GetGeneralDepartments();
-            generalDepartmentDialog.ChangeTitle("Add");
-        }
-    }
-    //Edit
-    private void EditClicked(GeneralDepartment dep)
-    {
-        generalDepartmentDialog?.ChangeTitle("Update");
-        GeneralDepartment = dep;
-        OpenDialog();
+            { "GeneralDepartment", new GeneralDepartment() },
+            { "Title", "Add General Department" }
+        };
+
+        var dialog = await DialogService.ShowAsync<GeneralDepartmentDialog>("Add General Department", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+            await LoadData();
+
     }
 
-    //Delete
-    private async Task DeleteClicked(GeneralDepartment dep)
+    private async Task EditGeneralDepartment(GeneralDepartment generalDepartment)
     {
-        bool confirm = await dialogService.ConfirmAsync($"Are you sure you wanna delete {dep.Name}", "Confirm Delete");
-        if (!confirm) return;
+        var parameters = new DialogParameters
+        {
+            { "GeneralDepartment", generalDepartment },
+            { "Title", "Update General Department" }
+        };
 
-        var response = await generalDepartmentService.DeleteById(dep.Id, Constants.GeneralDepartmentBaseUrl);
-        if (await DisplayMessage(response.Flag, response.Message))
-            await GetGeneralDepartments();
+        var dialog = await DialogService.ShowAsync<GeneralDepartmentDialog>("Update General Department", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+            await LoadData();
     }
-
-    private async Task<bool> DisplayMessage(bool flag, string message)
+    private async Task DeleteGeneralDepartment(GeneralDepartment generalDepartment)
     {
-        if (flag)
+        var parameters = new DialogParameters
         {
-            await dialogService.AlertAsync(message, "Success Operation");
-            return true;
-        }
-        else
+            { "ContentText", $"Are you sure you want to delete {generalDepartment.Name}?" },
+            { "ConfirmButtonText", "Delete" },
+            { "CancelButtonText", "Cancel" },
+            { "Color", Color.Error }
+        };
+
+        var options = new MudBlazor.DialogOptions
+            {
+                CloseButton = true,
+                MaxWidth = MaxWidth.ExtraSmall,
+                FullWidth = true
+            };
+
+        var dialog = await DialogService.ShowAsync<ConfirmDialog>("Confirm Delete", parameters, options);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
         {
-            await dialogService.AlertAsync(message, "Alert!");
-            return false;
+            var response = await generalDepartmentService.DeleteById(generalDepartment.Id, Constants.GeneralDepartmentBaseUrl);
+            Snackbar.Add(response.Message, response.Flag ? Severity.Success : Severity.Error);
+
+            if (response.Flag)
+                await LoadData();
         }
     }
-
     public void Dispose()
     {
         allState.Action -= StateHasChanged;
