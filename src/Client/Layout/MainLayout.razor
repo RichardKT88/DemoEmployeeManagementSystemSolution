@@ -18,6 +18,15 @@
     </main>
 </div>
 <Syncfusion.Blazor.Popups.SfDialogProvider/>
+@* Required *@
+<MudThemeProvider />
+<MudPopoverProvider />
+
+@* Needed for dialogs *@
+<MudDialogProvider />
+
+@* Needed for snackbars *@
+<MudSnackbarProvider />
 @code {
     async Task LogoutCLicked()
     {

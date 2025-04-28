@@ -1,4 +1,6 @@
 ﻿@implements IDisposable
+@inject IDialogService DialogService
+
 @if (allState.ShowUser)
 {
     <div class="container mt-5">
@@ -96,7 +98,8 @@
 
     void OpenDialog()
     {
-        userDialog?.OpenDialog();
+        //userDialog?.OpenDialog();
+        userDialog?.OpenDialogAsync();
     }
     //Add or Update
     private async Task HandleSaveOperationEvent(ManageUser manageUser)
@@ -121,8 +124,8 @@
     //Delete
     private async Task DeleteClicked(ManageUser user)
     {
-        bool confirm = await dialogService.ConfirmAsync($"Are you sure you wanna delete {user.Name}", "Confirm Delete");
-        if (!confirm) return;
+        bool? confirm = await DialogService.ShowMessageBox("Delete User",$"Are you sure you wanna delete {user.Name}", "Confirm Delete", "Cancel");
+        if (!(bool)confirm) return;
 
         var response = await accountService.DeleteUser(user.UserId);
         var result = await DisplayMessage(response.Flag, response.Message);
@@ -147,5 +150,5 @@
     public void Dispose()
     {
         allState.Action -= StateHasChanged;
-    }
+    }    
 }
