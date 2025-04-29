@@ -1,78 +1,44 @@
-﻿@implements IDisposable
+@implements IDisposable
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+
 @if (allState.ShowCountry)
 {
-    <div class="container mt-5">
-        <div class="row">
-            <div class="col-lg-12">
-                <div class="card">
-                    <div class="card-header">
-                        <h4 class="float-start">Countries</h4>
-                        <button class="btn btn-outline-success float-end" @onclick="OpenDialog"><i class="bi bi-plus-circle-dotted"></i> Add Country</button>
-                    </div>
-                    <div class="card-header" style="max-height:580px; overflow-x:hidden; overflow-y:scroll">
-                        <div class="card-body">
-                            <table class="table table-striped">
-                                <thead>
-                                    <tr>
-                                        <th scope="col">#</th>
-                                        <th scope="col">Id</th>
-                                        <th scope="col">Country</th>
-                                        <th scope="col">Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @if (Countries is not null)
-                                    {
-                                        int count = 1;
-                                        foreach (var item in Countries)
-                                        {
-                                            <tr>
-                                                <th scope="row">@count</th>
-                                                <td>@item.Id</td>
-                                                <td>@item.Name</td>
-                                                <td>
-                                                    <i class="bi bi-pencil text-info" id="cursorStyle" @onclick="()=>EditClicked(item)"></i>
-                                                    <i class="bi bi-trash text-danger" id="cursorStyle" @onclick="()=>DeleteClicked(item)"></i>
-                                                </td>
-                                            </tr>
-                                            count++;
-                                        }
-                                    }
-                                    else
-                                    {
-                                        <tr>
-                                            <td colspan="4"><div class="alert alert-info text-center">No Country added yet!</div></td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    <MudContainer MaxWidth="MaxWidth.False" Class="mt-8">
+        <MudPaper Class="p-4 mt-5 mx-auto" Style="width:1200px;" Elevation="6">
+            <MudStack Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="mb-4">
+                <MudText Typo="Typo.h5">Countries</MudText>
+                <MudButton Color="Color.Success" Variant="Variant.Filled" OnClick="AddCountry">
+                    <MudIcon Icon="@Icons.Material.Filled.AddCircleOutline" Class="me-1" /> Add Country
+                </MudButton>
+            </MudStack>
+
+            <MudTable Items="Countries" Dense="true" Hover="true" Bordered="true" Striped="true">
+                <HeaderContent>
+                    <MudTh>Id</MudTh>
+                    <MudTh>Country</MudTh>
+                    <MudTh>Action</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="Id">@context.Id</MudTd>
+                    <MudTd DataLabel="Country">@context.Name</MudTd>
+                    <MudTd>
+                        <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Info" OnClick="@(() => EditCountry(context))" />
+                        <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="@(() => DeleteCountry(context))" />
+                    </MudTd>
+                </RowTemplate>
+                <NoRecordsContent>
+                    <MudText Class="m-2">No Country added yet!</MudText>
+                </NoRecordsContent>
+            </MudTable>
+        </MudPaper>
+    </MudContainer>
 }
-
-<style>
-    .cursorStyle {
-        cursor: pointer;
-    }
-</style>
-
-<CountryDialog @ref="countryDialog"
-              HandleSaveOperationEvent="HandleSaveOperationEvent"
-               Country="Country" />
-
-
 
 @code {
 
-    public string Title { get; set; } = "Add";
-    CountryDialog? countryDialog;
     Country Country = new();
     public List<Country> Countries { get; set; } = new();
-
 
     protected override async Task OnInitializedAsync()
     {
@@ -85,70 +51,64 @@
         Countries = await countryService.GetAll(Constants.CountryBaseUrl);
     }
 
-    void AddButtonClicked()
+    private async Task AddCountry()
     {
-        countryDialog?.ChangeTitle("Add");
-        Country = new();
-        OpenDialog();
-    }
+        var parameters = new DialogParameters
+        {
+            { "Country", new Country() }
+        };
 
-    void OpenDialog()
-    {
-        countryDialog?.OpenDialog();
-    }
-    //Add or Update
-    private async Task HandleSaveOperationEvent(Country country)
-    {
-        bool successCheck = false;
-        if (country.Id > 0)
-        {
-            var result = await countryService.Update(country, Constants.CountryBaseUrl);
-            successCheck = await DisplayMessage(result.Flag, result.Message);
-        }
-        else
-        {
-            var response = await countryService.Insert(country, Constants.CountryBaseUrl);
-            successCheck = await DisplayMessage(response.Flag, response.Message);
-        }
-        if (successCheck)
-        {
-            Country = new();
+        var dialog = await DialogService.ShowAsync<CountryDialog>("Add Country", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
             await GetCountries();
-            countryDialog?.ChangeTitle("Add");
-        }
-    }
-    //Edit
-    private void EditClicked(Country country)
-    {
-        countryDialog?.ChangeTitle("Update");
-        Country = country;
-        OpenDialog();
+
     }
 
-    //Delete
-    private async Task DeleteClicked(Country country)
+    private async Task EditCountry(Country country)
     {
-        bool confirm = await dialogService.ConfirmAsync($"Are you sure you wanna delete {country.Name}", "Confirm Delete");
-        if (!confirm) return;
+        var parameters = new DialogParameters
+        {
+            { "Country", country },
+        };
 
-        var response = await countryService.DeleteById(country.Id, Constants.CountryBaseUrl);
-        if (await DisplayMessage(response.Flag, response.Message))
+        var dialog = await DialogService.ShowAsync<CountryDialog>("Update Country", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
             await GetCountries();
     }
-
-    private async Task<bool> DisplayMessage(bool flag, string message)
+    private async Task DeleteCountry(Country country)
     {
-        if (flag)
+        var parameters = new DialogParameters
         {
-            await dialogService.AlertAsync(message, "Success Operation");
-            return true;
-        }
-        else
+            { "ContentText", $"Are you sure you want to delete {country.Name}?" },
+            { "ConfirmButtonText", "Delete" },
+            { "CancelButtonText", "Cancel" },
+            { "Color", Color.Error }
+        };
+
+        var options = new MudBlazor.DialogOptions
+            {
+                CloseButton = true,
+                MaxWidth = MaxWidth.ExtraSmall,
+                FullWidth = true
+            };
+
+        var dialog = await DialogService.ShowAsync<ConfirmDialog>("Confirm Delete", parameters, options);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
         {
-            await dialogService.AlertAsync(message, "Alert!");
-            return false;
+            var response = await countryService.DeleteById(country.Id, Constants.GeneralDepartmentBaseUrl);
+            Snackbar.Add(response.Message, response.Flag ? Severity.Success : Severity.Error);
+
+            if (response.Flag)
+                await GetCountries();
         }
     }
+  
 
     public void Dispose()
     {

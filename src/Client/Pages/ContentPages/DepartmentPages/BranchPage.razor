@@ -3,36 +3,37 @@
 @implements IDisposable
 
 @if (allState.ShowBranch)
-{ <MudContainer MaxWidth="MaxWidth.False" Class="mt-8">
-    <MudPaper Class="p-4 mt-5 mx-auto" Style="width:1200px;" Elevation="6">
-        <MudStack Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="mb-4">
-            <MudText Typo="Typo.h5">Branches</MudText>
-            <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="AddBranch">
-                <MudIcon Icon="@Icons.Material.Filled.AddCircleOutline" Class="me-1" /> Add Branch
-            </MudButton>
-        </MudStack>      
-        <MudTable Items="Branches" Dense="true" Hover="true" Bordered="true" Striped="true">
-            <HeaderContent>
-                <MudTh>Id</MudTh>
-                <MudTh>Department</MudTh>
-                <MudTh>Branch</MudTh>
-                <MudTh>Actions</MudTh>
-            </HeaderContent>
-            <RowTemplate>
-                <MudTd>@context.Id</MudTd>
-                <MudTd>@context.Department?.Name</MudTd>
-                <MudTd>@context.Name</MudTd>
-                <MudTd>
-                    <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Info" OnClick="@(() => EditBranch(context))" />
-                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="@(() => DeleteBranch(context))" />
-                </MudTd>
-            </RowTemplate>
-            <NoRecordsContent>
-                <MudText Class="text-center mt-4" Color="Color.Info">No Branches added yet!</MudText>
-            </NoRecordsContent>
-        </MudTable>
-    </MudPaper>
-</MudContainer>
+{
+    <MudContainer MaxWidth="MaxWidth.False" Class="mt-8">
+        <MudPaper Class="p-4 mt-5 mx-auto" Style="width:1200px;" Elevation="6">
+            <MudStack Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="mb-4">
+                <MudText Typo="Typo.h5">Branches</MudText>
+                <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="AddBranch">
+                    <MudIcon Icon="@Icons.Material.Filled.AddCircleOutline" Class="me-1" /> Add Branch
+                </MudButton>
+            </MudStack>
+            <MudTable Items="Branches" Dense="true" Hover="true" Bordered="true" Striped="true">
+                <HeaderContent>
+                    <MudTh>Id</MudTh>
+                    <MudTh>Department</MudTh>
+                    <MudTh>Branch</MudTh>
+                    <MudTh>Actions</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd>@context.Id</MudTd>
+                    <MudTd>@context.Department?.Name</MudTd>
+                    <MudTd>@context.Name</MudTd>
+                    <MudTd>
+                        <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Info" OnClick="@(() => EditBranch(context))" />
+                        <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="@(() => DeleteBranch(context))" />
+                    </MudTd>
+                </RowTemplate>
+                <NoRecordsContent>
+                    <MudText Class="text-center mt-4" Color="Color.Info">No Branches added yet!</MudText>
+                </NoRecordsContent>
+            </MudTable>
+        </MudPaper>
+    </MudContainer>
 }
 
 @code {
@@ -57,7 +58,6 @@
         {
             { "Branch", new Branch() },
             { "Departments", Departments },
-            { "Title", "Add Branch" }
         };
 
         var dialog = await DialogService.ShowAsync<BranchDialog>("Add Branch", parameters);
@@ -73,7 +73,6 @@
         {
             { "Branch", branch },
             { "Departments", Departments },
-            { "Title", "Update Branch" }
         };
 
         var dialog = await DialogService.ShowAsync<BranchDialog>("Update Branch", parameters);
@@ -94,11 +93,11 @@
         };
 
         var options = new MudBlazor.DialogOptions
-        {
-            CloseButton = true,
-            MaxWidth = MaxWidth.ExtraSmall,
-            FullWidth = true
-        };
+            {
+                CloseButton = true,
+                MaxWidth = MaxWidth.ExtraSmall,
+                FullWidth = true
+            };
 
         var dialog = await DialogService.ShowAsync<ConfirmDialog>("Confirm Delete", parameters, options);
         var result = await dialog.Result;

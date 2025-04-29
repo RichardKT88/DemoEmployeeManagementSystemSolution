@@ -4,36 +4,35 @@
 
 @if (allState.ShowUser)
 {
-    <MudContainer MaxWidth="MaxWidth.Large" Class="mt-5">
-        <MudPaper Class="pa-4">
-            <MudStack Spacing="2">
+    <MudContainer MaxWidth="MaxWidth.False" Class="mt-8">
+        <MudPaper Class="p-4 mt-5 mx-auto" Style="width:1200px;" Elevation="6">
+            <MudStack Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="mb-4">
                 <MudText Typo="Typo.h5">Manage Users</MudText>
-
-                <MudTable Items="ManageUsers" Hover="true" Bordered="true" Striped="true">
-                    <HeaderContent>                    
-                        <MudTh>Id</MudTh>
-                        <MudTh>Name</MudTh>
-                        <MudTh>Email</MudTh>
-                        <MudTh>Role</MudTh>
-                        <MudTh>Action</MudTh>
-                    </HeaderContent>
-                    <RowTemplate>                     
-                        <MudTd>@context.UserId</MudTd>
-                        <MudTd>@context.Name</MudTd>
-                        <MudTd>@context.Email</MudTd>
-                        <MudTd>@context.Role</MudTd>
-                        <MudTd>
-                            <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Info" OnClick="@(()=>OpenEditDialog(context))" />
-                            <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="@(()=>DeleteClicked(context))" />
-                        </MudTd>
-                    </RowTemplate>
-                    <NoRecordsContent>
-                        <MudAlert Severity="Severity.Info" Variant="Variant.Filled">
-                            No User added yet!
-                        </MudAlert>
-                    </NoRecordsContent>
-                </MudTable>
             </MudStack>
+            <MudTable Items="ManageUsers" Dense="true" Hover="true" Bordered="true" Striped="true">
+                <HeaderContent>
+                    <MudTh>Id</MudTh>
+                    <MudTh>Name</MudTh>
+                    <MudTh>Email</MudTh>
+                    <MudTh>Role</MudTh>
+                    <MudTh>Action</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd>@context.UserId</MudTd>
+                    <MudTd>@context.Name</MudTd>
+                    <MudTd>@context.Email</MudTd>
+                    <MudTd>@context.Role</MudTd>
+                    <MudTd>
+                        <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Info" OnClick="@(()=>OpenEditDialog(context))" />
+                        <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="@(()=>DeleteClicked(context))" />
+                    </MudTd>
+                </RowTemplate>
+                <NoRecordsContent>
+                    <MudAlert Severity="Severity.Info" Variant="Variant.Filled">
+                        No User added yet!
+                    </MudAlert>
+                </NoRecordsContent>
+            </MudTable>
         </MudPaper>
     </MudContainer>
 }
@@ -90,11 +89,11 @@
         };
 
         var options = new MudBlazor.DialogOptions
-        {
-            CloseButton = true,
-            MaxWidth = MaxWidth.ExtraSmall,
-            FullWidth = true
-        };
+            {
+                CloseButton = true,
+                MaxWidth = MaxWidth.ExtraSmall,
+                FullWidth = true
+            };
 
         var dialog = await DialogService.ShowAsync<ConfirmDialog>("Confirm Delete", parameters, options);
         var result = await dialog.Result;
@@ -111,7 +110,7 @@
             {
                 Snackbar.Add(response.Message, Severity.Error);
             }
-        }     
+        }
     }
 
     public void Dispose() => allState.Action -= StateHasChanged;

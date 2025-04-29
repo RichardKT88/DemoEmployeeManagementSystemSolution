@@ -1,78 +1,57 @@
-﻿<SfDialog Width="280px" IsModal="true" ShowCloseIcon="true" @bind-Visible="IsVisible">
+<MudDialog MaxWidth="MaxWidth.Small" FullWidth="true">
+    <DialogContent>
+        <MudForm @ref="_form">
+            <MudPaper Class="p-4">
+                <MudTextField @bind-Value="City.Id" Label="Id" Disabled="true" Variant="Variant.Filled" Class="mb-4" />
+                <MudTextField @bind-Value="City.Name" Label="City Name" Required="true" Variant="Variant.Filled" Class="mb-4" />
 
-    <DialogEvents OnOpen="OpenDialog"></DialogEvents>
-    <DialogTemplates>
-        <Header>@Title City</Header>
-        <Content>
-            <EditForm Model="City" Enhance On OnSubmit="Save">
-                <div class="card-border-success">
-                    <div class="card-body">
-                        <div class="form-group">
-                            <label class="form-label">Id</label>
-                            <input @bind="City.Id" class="form-control" disabled />
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Name</label>
-                            <InputText @bind-Value="City.Name" class="form-control" />
-                        </div>
-                        <div class="form-group mt-3 mb-3">
-                            <label class="form-label">Select Country</label>
-
-                            @if (City.Country != null)
-                            {
-                                string selected = City.Country!.Name;
-                                <SfDropDownList TValue="string" TItem="Country" Placeholder="@selected" DataSource="Countries">
-                                    <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
-                                    <DropDownListEvents TValue="string" TItem="Country" ValueChange="OnValueChange"></DropDownListEvents>
-                                </SfDropDownList>
-                            }
-                            else
-                            {
-                                <SfDropDownList TValue="string" TItem="Country" Placeholder="Select Country" DataSource="Countries">
-                                    <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
-                                    <DropDownListEvents TValue="string" TItem="Country" ValueChange="OnValueChange"></DropDownListEvents>
-                                </SfDropDownList>
-                            }
-                        </div>
-                    </div>
-                </div>
-            </EditForm>
-        </Content>
-    </DialogTemplates>
-
-   @*  <DialogButtons>
-        <DialogButton Content="SAVE" Type="ButtonType.Submit" IsPrimary="true" OnClick="Save" />
-    </DialogButtons> *@
-
-</SfDialog>
-
+                <MudSelect T="int" Label="Select Country" @bind-Value="City.CountryId" Required="true" Variant="Variant.Filled" Class="mb-4">
+                    @foreach (var country in Countries)
+                    {
+                        <MudSelectItem Value="@country.Id">@country.Name</MudSelectItem>
+                    }
+                </MudSelect>
+                <MudStack Row Justify="Justify.FlexEnd" Class="mt-6">
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="Save">Save</MudButton>
+                    <MudButton OnClick="Cancel" Color="Color.Secondary" Variant="Variant.Outlined">Cancel</MudButton>
+                </MudStack>
+            </MudPaper>
+        </MudForm>
+    </DialogContent>
+</MudDialog>
 @code {
+    [CascadingParameter] IMudDialogInstance MudDialog { get; set; } = default!;
     [Parameter] public City City { get; set; } = new();
     [Parameter] public List<Country> Countries { get; set; } = new();
-    [Parameter] public EventCallback<City> HandleSaveOperationEvent { get; set; }
 
-    private bool IsVisible { get; set; } = false;
-    public string Title { get; set; } = "Add";
+    [Inject] private ISnackbar Snackbar { get; set; } = default!;
+    private MudForm? _form;
 
     private async void Save()
     {
-        if (string.IsNullOrEmpty(City.Name) || City.CountryId <= 0)
-            await dialogService.AlertAsync("You need to provide City name.", "Alert!");
+        await _form.Validate();
+
+        if (_form.IsValid)
+        {
+            if (City.Id > 0)
+            {
+                var result = await cityService.Update(City, Constants.CityBaseUrl);
+                Snackbar.Add(result.Message, result.Flag ? Severity.Success : Severity.Error);
+            }
+            else
+            {
+                var result = await cityService.Insert(City, Constants.CityBaseUrl);
+                Snackbar.Add(result.Message, result.Flag ? Severity.Success : Severity.Error);
+            }
+
+            MudDialog.Close(DialogResult.Ok(true));
+          
+        }
         else
-            await HandleSaveOperationEvent.InvokeAsync(City);
-    }
-    public void OpenDialog()
-    {
-        IsVisible = true;
-        StateHasChanged();
+        {
+            Snackbar.Add("Please fill all required fields.", Severity.Warning);
+        }
     }
 
-    public void ChangeTitle(string title)
-    {
-        Title = title;
-    }
-    public void OnValueChange(ChangeEventArgs<string, Country> args)
-    {
-        City.CountryId = int.Parse(args.Value);
-    }
+    private void Cancel() => MudDialog.Cancel();
 }

@@ -6,14 +6,14 @@
 {
     <MudContainer MaxWidth="MaxWidth.False" Class="mt-8">
         <MudPaper Class="p-4 mt-5 mx-auto" Style="width:1200px;" Elevation="6">
-            <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Class="mb-4">
+            <MudStack Row AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Class="mb-4">
                 <MudText Typo="Typo.h5">Departments</MudText>
                 <MudButton Color="Color.Success" Variant="Variant.Filled" OnClick="AddDepartment">
                     <MudIcon Icon="@Icons.Material.Filled.AddCircleOutline" Class="me-1" /> Add Department
                 </MudButton>
             </MudStack>
 
-            <MudTable Items="Departments" Hover="true" Bordered="true" Striped="true" Elevation="0" Dense="true">
+            <MudTable Items="Departments" Dense="true" Hover="true" Bordered="true" Striped="true">
                 <HeaderContent>
                     <MudTh>Id</MudTh>
                     <MudTh>General Department</MudTh>
@@ -61,7 +61,6 @@
         {
             { "Department", new Department() },
             { "GeneralDepartments", GeneralDepartments },
-            { "Title", "Add Department" }
         };
 
         var dialog = await DialogService.ShowAsync<DepartmentDialog>("Add Department", parameters);
@@ -78,7 +77,6 @@
         {
             { "Department", department },
             { "GeneralDepartments", GeneralDepartments },
-            { "Title", "Update Branch" }
         };
 
         var dialog = await DialogService.ShowAsync<DepartmentDialog>("Update Branch", parameters);

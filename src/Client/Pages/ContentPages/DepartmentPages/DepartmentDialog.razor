@@ -2,12 +2,8 @@
     <DialogContent>
         <MudForm @ref="_form">
             <MudPaper Class="p-4">
-                <MudText Typo="Typo.h6" GutterBottom="true">@Title</MudText>
-
                 <MudTextField T="int" Label="Id" @bind-Value="Department.Id" Disabled="true" Variant="Variant.Filled" Class="mb-4" />
-
                 <MudTextField T="string" Label="Name" @bind-Value="Department.Name" Required="true" Variant="Variant.Filled" Class="mb-4" />
-
                 <MudSelect T="int" Label="Select General Department" @bind-Value="Department.GeneralDepartmentId" Required="true" Variant="Variant.Filled">
                     @if (GeneralDepartments != null)
                     {
@@ -17,11 +13,9 @@
                         }
                     }
                 </MudSelect>
-
-                <MudStack Row="true" Justify="Justify.FlexEnd" Class="mt-6">
-                    <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="Save">
-                        Save
-                    </MudButton>
+                <MudStack Row Justify="Justify.FlexEnd" Class="mt-6">
+                    <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="Save">Save</MudButton>
+                    <MudButton OnClick="Cancel" Color="Color.Secondary" Variant="Variant.Outlined">Cancel</MudButton>
                 </MudStack>
             </MudPaper>
         </MudForm>
@@ -33,7 +27,6 @@
     [Parameter] public Department Department { get; set; } = new();
     [Parameter] public List<GeneralDepartment> GeneralDepartments { get; set; } = new();
     [Inject] private ISnackbar Snackbar { get; set; } = default!;
-    [Parameter] public string Title { get; set; } = "Add";
     private MudForm _form = default!;
 
     private async void Save()
@@ -59,5 +52,6 @@
         {
             Snackbar.Add("Please fill all required fields.", Severity.Warning);
         }
-    }   
+    }
+    private void Cancel() => MudDialog.Cancel();
 }

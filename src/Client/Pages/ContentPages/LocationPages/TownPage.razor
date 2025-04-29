@@ -1,162 +1,117 @@
-﻿@implements IDisposable
+@implements IDisposable
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+
 @if (allState.ShowTown)
 {
-    <div class="container mt-5">
-        <div class="row">
-            <div class="col-lg-12">
-                <div class="card">
-                    <div class="card-header">
-                        <h4 class="float-start">Town</h4>
-                        <button class="btn btn-outline-success float-end" @onclick="OpenDialog"><i class="bi bi-plus-circle-dotted"></i> Add Town</button>
-                    </div>
-                    <div class="card-header" style="max-height:580px; overflow-x:hidden; overflow-y:scroll">
-                        <div class="card-body">
-                            <table class="table table-striped">
-                                <thead>
-                                    <tr>
-                                        <th scope="col">#</th>
-                                        <th scope="col">Id</th>
-                                        <th scope="col">City</th>
-                                        <th scope="col">Town</th>
-                                        <th scope="col">Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @if (Towns is not null)
-                                    {
-                                        int count = 1;
-                                        foreach (var item in Towns)
-                                        {
-                                            <tr>
-                                                <th scope="row">@count</th>
-                                                <td>@item.Id</td>
-                                                <td>@item.City!.Name</td>
-                                                <td>@item.Name</td>
-                                                <td>
-                                                    <i class="bi bi-pencil text-info" id="cursorStyle" @onclick="()=>EditClicked(item)"></i>
-                                                    <i class="bi bi-trash text-danger" id="cursorStyle" @onclick="()=>DeleteClicked(item)"></i>
-                                                </td>
-                                            </tr>
-                                            count++;
-                                        }
-                                    }
-                                    else
-                                    {
-                                        <tr>
-                                            <td colspan="4"><div class="alert alert-info text-center">No Town added yet!</div></td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    <MudContainer MaxWidth="MaxWidth.False" Class="mt-8">
+        <MudPaper Class="p-4 mt-5 mx-auto" Style="width:1200px;" Elevation="6">
+            <MudStack Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="mb-4">
+                <MudText Typo="Typo.h5">Towns</MudText>
+                <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="AddTown">
+                    <MudIcon Icon="@Icons.Material.Filled.AddCircleOutline" Class="me-1" /> Add Town
+                </MudButton>
+            </MudStack>
+            <MudTable Items="Towns" Dense="true" Hover="true" Bordered="true" Striped="true">
+                <HeaderContent>
+                    <MudTh>Id</MudTh>
+                    <MudTh>City</MudTh>
+                    <MudTh>Town</MudTh>
+                    <MudTh>Actions</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="Id">@context.Id</MudTd>
+                    <MudTd DataLabel="City">@context.City?.Name</MudTd>
+                    <MudTd DataLabel="Town">@context.Name</MudTd>
+                    <MudTd>
+                        <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Info" OnClick="@(() => EditTown(context))" />
+                        <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="@(() => DeleteTown(context))" />
+                    </MudTd>
+                </RowTemplate>
+                <NoRecordsContent>
+                    <MudText>No Towns added yet!</MudText>
+                </NoRecordsContent>
+            </MudTable>
+        </MudPaper>
+    </MudContainer>
 }
 
-<style>
-    .cursorStyle {
-        cursor: pointer;
-    }
-</style>
-<TownDialog @ref="townDialog"
-            HandleSaveOperationEvent="HandleSaveOperationEvent"
-            Town="Town"
-            Cities="Cities" />
-
-
 @code {
-
-    public string Title { get; set; } = "Add";
-    TownDialog? townDialog;
     Town Town = new();
     public List<Town> Towns { get; set; } = new();
     public List<City> Cities { get; set; } = new();
 
-
     protected override async Task OnInitializedAsync()
     {
-        await GetTowns();
-        await GetCities();
+        await LoadData();
         allState.Action += StateHasChanged;
     }
-
-    private async Task GetCities()
+    private async Task LoadData()
     {
         Cities = await cityService.GetAll(Constants.CityBaseUrl);
-    }
-
-    private async Task GetTowns()
-    {
         Towns = await townService.GetAll(Constants.TownBaseUrl);
     }
 
-    void AddButtonClicked()
+    private async Task AddTown()
     {
-        townDialog?.ChangeTitle("Add");
-        Town = new();
-        OpenDialog();
+        var parameters = new DialogParameters
+        {
+            { "Town", new Town() },
+            { "Cities", Cities },
+        };
+
+        var dialog = await DialogService.ShowAsync<TownDialog>("Add Town", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+            await LoadData();
     }
 
-    void OpenDialog()
+    private async Task EditTown(Town town)
     {
-        townDialog?.OpenDialog();
-    }
-    //Add or Update
-    private async Task HandleSaveOperationEvent(Town town)
-    {
-        bool successCheck = false;
-        if (town.Id > 0)
+        var parameters = new DialogParameters
         {
-            var result = await townService.Update(town, Constants.TownBaseUrl);
-            successCheck = await DisplayMessage(result.Flag, result.Message);
-        }
-        else
-        {
-            var response = await townService.Insert(town, Constants.TownBaseUrl);
-            successCheck = await DisplayMessage(response.Flag, response.Message);
-        }
-        if (successCheck)
-        {
-            Town = new();
-            await GetTowns();
-            townDialog?.ChangeTitle("Add");
-        }
-    }
-    //Edit
-    private void EditClicked(Town town)
-    {
-        townDialog?.ChangeTitle("Update");
-        Town = town;
-        OpenDialog();
+            { "Town", town },
+            { "Cities", Cities },
+        };
+
+        var dialog = await DialogService.ShowAsync<BranchDialog>("Update Town", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+            await LoadData();
     }
 
-    //Delete
-    private async Task DeleteClicked(Town town)
+    private async Task DeleteTown(Town town)
     {
-        bool confirm = await dialogService.ConfirmAsync($"Are you sure you wanna delete {town.Name}", "Confirm Delete");
-        if (!confirm) return;
+        var parameters = new DialogParameters
+        {
+            { "ContentText", $"Are you sure you want to delete {town.Name}?" },
+            { "ConfirmButtonText", "Delete" },
+            { "CancelButtonText", "Cancel" },
+            { "Color", Color.Error }
+        };
 
-        var response = await townService.DeleteById(town.Id, Constants.TownBaseUrl);
-        if (await DisplayMessage(response.Flag, response.Message))
-            await GetCities();
+        var options = new MudBlazor.DialogOptions
+            {
+                CloseButton = true,
+                MaxWidth = MaxWidth.ExtraSmall,
+                FullWidth = true
+            };
+
+        var dialog = await DialogService.ShowAsync<ConfirmDialog>("Confirm Delete", parameters, options);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            var response = await branchService.DeleteById(town.Id, Constants.TownBaseUrl);
+            Snackbar.Add(response.Message, response.Flag ? Severity.Success : Severity.Error);
+
+            if (response.Flag)
+                await LoadData();
+        }
     }
 
-    private async Task<bool> DisplayMessage(bool flag, string message)
-    {
-        if (flag)
-        {
-            await dialogService.AlertAsync(message, "Success Operation");
-            return true;
-        }
-        else
-        {
-            await dialogService.AlertAsync(message, "Alert!");
-            return false;
-        }
-    }
 
     public void Dispose()
     {

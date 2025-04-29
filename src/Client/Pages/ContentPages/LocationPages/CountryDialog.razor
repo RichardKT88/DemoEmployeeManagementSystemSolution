@@ -1,55 +1,44 @@
-﻿<SfDialog Width="280px" IsModal="true" ShowCloseIcon="true" @bind-Visible="IsVisible">
-
-    <DialogEvents OnOpen="OpenDialog"></DialogEvents>
-    <DialogTemplates>
-        <Header>@Title Country</Header>
-        <Content>
-            <EditForm Model="Country" Enhance On OnSubmit="Save">
-                <div class="card-border-success">
-                    <div class="card-body">
-                        <div class="form-group">
-                            <label class="form-label">Id</label>
-                            <input @bind="Country.Id" class="form-control" disabled />
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Name</label>
-                            <InputText @bind-Value="Country.Name" class="form-control" />
-                        </div>                  
-                    </div>
-                </div>
-            </EditForm>
-        </Content>
-    </DialogTemplates>
-
-   @*  <DialogButtons>
-        <DialogButton Content="SAVE" Type="ButtonType.Submit" IsPrimary="true" OnClick="Save" />
-    </DialogButtons> *@
-
-</SfDialog>
+<MudDialog>
+    <DialogContent>
+        <MudForm @ref="_form">
+            <MudPaper Class="p-4">
+                <MudTextField @bind-Value="Country.Id" Label="Id" Disabled="true" Variant="Variant.Filled" Class="mb-4" />
+                <MudTextField @bind-Value="Country.Name" Label="Name" Required="true" For="@(() => Country.Name)" RequiredError="Name is required." Variant="Variant.Filled" Class="mb-4" />
+                <MudStack Row="true" Justify="Justify.FlexEnd" Class="mt-6">
+                    <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="Save">Save</MudButton>
+                    <MudButton OnClick="Cancel" Color="Color.Secondary" Variant="Variant.Outlined">Cancel</MudButton>
+                </MudStack>
+            </MudPaper>
+        </MudForm>
+    </DialogContent>
+</MudDialog>
 
 @code {
+    [CascadingParameter] IMudDialogInstance MudDialog { get; set; } = default!;
     [Parameter] public Country Country { get; set; } = new();
-    [Parameter] public List<Department> Departments { get; set; } = new();
-    [Parameter] public EventCallback<Country> HandleSaveOperationEvent { get; set; }
+    [Inject] private ISnackbar Snackbar { get; set; } = default!;
 
-    private bool IsVisible { get; set; } = false;
-    public string Title { get; set; } = "Add";
+    private MudForm _form = default!;
 
     private async void Save()
     {
-        if (string.IsNullOrEmpty(Country.Name))
-            await dialogService.AlertAsync("You need to provide Country name.", "Alert!");
-        else
-            await HandleSaveOperationEvent.InvokeAsync(Country);
-    }
-    public void OpenDialog()
-    {
-        IsVisible = true;
-        StateHasChanged();
-    }
+        await _form.Validate();
 
-    public void ChangeTitle(string title)
-    {
-        Title = title;
-    }   
+        if (_form.IsValid)
+        {
+            if (Country.Id > 0)
+            {
+                var result = await countryService.Update(Country, Constants.CountryBaseUrl);
+                Snackbar.Add(result.Message, result.Flag ? Severity.Success : Severity.Error);
+            }
+            else
+            {
+                var result = await countryService.Insert(Country, Constants.CountryBaseUrl);
+                Snackbar.Add(result.Message, result.Flag ? Severity.Success : Severity.Error);
+            }
+            MudDialog.Close(DialogResult.Ok(true));
+        }
+
+    }
+    private void Cancel() => MudDialog.Cancel();
 }

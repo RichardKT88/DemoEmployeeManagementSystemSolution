@@ -1,25 +1,22 @@
 <MudDialog>
     <DialogContent>
-        <MudForm @ref="form" Model="ManageUser" Validated="OnValidated">
-            <MudText Typo="Typo.h6" Class="mb-4">Update User</MudText>
-
-            <MudTextField @bind-Value="ManageUser.Name" Label="Name" Disabled="true" For="@(() => ManageUser.Name)" />
-
-            <MudTextField @bind-Value="ManageUser.Email" Label="Email" Disabled="true" For="@(() => ManageUser.Email)" />
-
-            <MudSelect @bind-Value="ManageUser.Role" Label="Select Role" Required="true" For="@(() => ManageUser.Role)">
-                @foreach (var role in SystemRoles)
-                {
-                    <MudSelectItem Value="@role.Name">@role.Name</MudSelectItem>
-                }
-            </MudSelect>
+        <MudForm @ref="_form">
+            <MudPaper Class="p-4">
+                <MudTextField @bind-Value="ManageUser.Name" Label="Name" Disabled="true" For="@(() => ManageUser.Name)" Variant="Variant.Filled" Class="mb-4" />
+                <MudTextField @bind-Value="ManageUser.Email" Label="Email" Disabled="true" For="@(() => ManageUser.Email)" Variant="Variant.Filled" Class="mb-4" />
+                <MudSelect @bind-Value="ManageUser.Role" Label="Select Role" Required="true" For="@(() => ManageUser.Role)" Variant="Variant.Filled">
+                    @foreach (var role in SystemRoles)
+                    {
+                        <MudSelectItem Value="@role.Name">@role.Name</MudSelectItem>
+                    }
+                </MudSelect>
+                <MudStack Row Justify="Justify.FlexEnd" Class="mt-6">
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="Save">Save</MudButton>
+                    <MudButton OnClick="Cancel" Color="Color.Secondary" Variant="Variant.Outlined">Cancel</MudButton>
+                </MudStack>
+            </MudPaper>
         </MudForm>
-    </DialogContent>
-
-    <DialogActions>
-        <MudButton OnClick="Save" Color="Color.Primary" Variant="Variant.Filled">Save</MudButton>
-        <MudButton OnClick="Cancel" Color="Color.Default" Variant="Variant.Text">Cancel</MudButton>
-    </DialogActions>
+    </DialogContent>   
 </MudDialog>
 
 @code {
@@ -27,14 +24,14 @@
     [Parameter] public ManageUser ManageUser { get; set; } = new();
     [Parameter] public List<SystemRole> SystemRoles { get; set; } = new();
     [Inject] private ISnackbar Snackbar { get; set; }
-    
-    private MudForm form;
+
+    private MudForm _form;
 
     private async Task Save()
     {
-        await form.Validate();
+        await _form.Validate();
 
-        if (!form.IsValid)
+        if (!_form.IsValid)
         {
             Snackbar.Add("Please correct validation errors before saving.", Severity.Warning);
             return;
@@ -50,14 +47,5 @@
             Snackbar.Add(result.Message, Severity.Error);
         }
     }
-
-    private void Cancel()
-    {
-        MudDialog.Cancel();
-    }
-
-    private void OnValidated()
-    {
-        // (Opcional) Código que executa depois da validação
-    }
+    private void Cancel() => MudDialog.Cancel();  
 }

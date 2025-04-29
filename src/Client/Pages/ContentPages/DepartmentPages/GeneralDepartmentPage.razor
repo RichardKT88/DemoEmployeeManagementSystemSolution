@@ -13,7 +13,7 @@
                 </MudButton>
             </MudStack>
 
-            <MudTable Items="GeneralDepartments" Hover="true" Bordered="true" Striped="true" Elevation="0" Dense="true">
+            <MudTable Items="GeneralDepartments" Dense="true" Hover="true" Bordered="true" Striped="true">
                 <HeaderContent>
                     <MudTh>Id</MudTh>
                     <MudTh>General Department</MudTh>
@@ -52,7 +52,6 @@
         var parameters = new DialogParameters
         {
             { "GeneralDepartment", new GeneralDepartment() },
-            { "Title", "Add General Department" }
         };
 
         var dialog = await DialogService.ShowAsync<GeneralDepartmentDialog>("Add General Department", parameters);
@@ -68,7 +67,6 @@
         var parameters = new DialogParameters
         {
             { "GeneralDepartment", generalDepartment },
-            { "Title", "Update General Department" }
         };
 
         var dialog = await DialogService.ShowAsync<GeneralDepartmentDialog>("Update General Department", parameters);
