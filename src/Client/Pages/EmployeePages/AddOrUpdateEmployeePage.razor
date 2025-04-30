@@ -1,240 +1,139 @@
-﻿@implements IDisposable
+@implements IDisposable
 
-@if(allState.ShowEmployee)
-{
-    if(ShowAddOrUpdateEmployee)
+<MudPaper Class="mt-12 mx-auto" Style="width:1200px;">
+    @if (allState.ShowEmployee && ShowAddOrUpdateEmployee)
     {
-        <div class="container">
-            <div class="row mt-5">
-                <div class="col-lg-1 text-center"><i class="bi bi-x-lg fs-3 fw-bold text-danger" style="cursor:pointer" @onclick="Closeform"></i></div>
-                <div class="col-lg-6 text-center"><h2>@Title Employee</h2></div>
-            </div>
+        <MudGrid>
+            <MudItem xs="1">
+                <MudIconButton Icon="@Icons.Material.Filled.Close" Color="Color.Error" OnClick="Closeform" />
+            </MudItem>
+            <MudItem xs="10" Class="text-center">
+                <MudText Typo="Typo.h5">@Title Employee</MudText>
+            </MudItem>
+        </MudGrid>
 
-            <div class="row">
-                <div class="col-lg-12 mt-2 mb-5 d-flex justify-content-center">
-                    <div class="hstack">
-                        @if (FirstLayer)
-                        {
-                            <div class="@FloatingNumber1 text-center">1</div>
-                            <div class="@Floatingdiv1 text-border"></div>
-                            <div class="@FloatingNumber2 text-center">2</div>
-                            <div class="@Floatingdiv2 text-border"></div>
-                        }
-                        @if (SecondLayer)
-                        {
-                            <div class="@FloatingNumber1 text-center">1</div>
-                            <div class="@Floatingdiv1 text-border"></div>
-                            <div class="@FloatingNumber2 text-center">2</div>
-                            <div class="@Floatingdiv2 text-border"></div>
-                        }
-                    </div>
-                </div>
+        <!-- Progresso visual -->
+        <MudProgressLinear Value="@((_activeStep) * 50)" Color="Color.Primary" Class="my-4" />
+        <MudText Typo="Typo.subtitle2" Align="Align.Center">Etapa @_activeStep de 2</MudText>
 
-                <div class="col-lg-12">
-                    <div class="container-fluid">
-                        @if (FirstLayer)
-                        {
-                            <EditForm Enhance Model="EmployeeGroup1" OnValidSubmit="Form1">
-                                <DataAnnotationsValidator/>
-                                <div class="row">
-                                    <div class="col-lg-2"></div>
-                                    <div class="col-lg-4">
-                                        <div class="card-title mb-5 fw-bold" style="font-family:Tahoma">Personal Information</div>
-                                        <div class="card-body">
-                                            <div class="form-group">
-                                                <label class="form-label">Fullname</label>
-                                                <InputText @bind-Value="EmployeeGroup1.Name" class="form-control"/>
-                                                <ValidationMessage For="()=>EmployeeGroup1.Name" class="text-danger" />
-                                            </div>
-                                            <div class="form-group mt-2">
-                                                <label class="form-label">Telephone</label>
-                                                <InputText @bind-Value="EmployeeGroup1.TelephoneNumber" class="form-control" />
-                                                <ValidationMessage For="()=>EmployeeGroup1.TelephoneNumber" class="text-danger" />
-                                            </div>
-                                            <div class="form-group mt-2">
-                                                <label class="form-label">Address</label>
-                                                <InputText @bind-Value="EmployeeGroup1.Address" class="form-control" />
-                                                <ValidationMessage For="()=>EmployeeGroup1.Address" class="text-danger" />
-                                            </div>
-                                            <div class="form-group mt-2">
-                                                <img src="@EmployeeGroup1.Photo" width="100" height="100"/>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-4 mt-2">
-                                        <div class="card-title mb-5 fw-bold" style="font-family:Tahoma">Other Information</div>
-                                        <div class="card-body">
-                                            <div class="form-group">
-                                                <label class="form-label">Civil Id</label>
-                                                <InputText @bind-Value="EmployeeGroup1.CivilId" class="form-control" />
-                                                <ValidationMessage For="()=>EmployeeGroup1.CivilId" class="text-danger" />
-                                            </div>
-                                            <div class="form-group mt-2">
-                                                <label class="form-label">File Number</label>
-                                                <InputText @bind-Value="EmployeeGroup1.FileNumber" class="form-control" />
-                                                <ValidationMessage For="()=>EmployeeGroup1.FileNumber" class="text-danger" />
-                                            </div>
-                                            <div class="form-group mt-2">
-                                                <label class="form-label @(ImageUploadMessage == ""?"":"text-danger" )">@(ImageUploadMessage == "" ? "Upload Image" : ImageUploadMessage)</label>
-                                                <InputFile class="form-control" OnChange="UploadImage" />
-                                                <ValidationMessage For="()=>EmployeeGroup1.Photo" class="text-danger" />
-                                            </div>
-                                            <div class="form-group mt-5">
-                                                <button class="btn btn-primary float-end mt-4 mb-5" type="submit">
-                                                    <i class="bi bi-arrow-right"></i>
-                                                    Next
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-2"></div>
-                                </div>
-                            </EditForm>
-                        }
-                        @if (SecondLayer)
-                        {
-                            <EditForm Enhance Model="EmployeeGroup2" OnValidSubmit="Form2">
-                                <DataAnnotationsValidator />
-                                <div class="row">
-                                    <div class="col-lg-2"></div>
-                                    <div class="col-lg-4">
-                                        <div class="card-title mb-5 fw-bold" style="font-family:Tahoma">Job Information</div>
-                                        <div class="card-body">
-                                            <div class="form-group">
-                                                <label class="form-label">Job Name</label>
-                                                <InputText @bind-Value="EmployeeGroup2.JobName" class="form-control" />
-                                                <ValidationMessage For="()=>EmployeeGroup2.JobName" class="text-danger" />
-                                            </div>
-                                            <div class="form-group mt-3">
-                                                @{
-                                                    string generalDepartment = GeneralDepartment.Equals("") ? "Select General Department" : GeneralDepartment;
-                                                }
-                                                <label class="form-label">Select General Department</label>
+        @if (_activeStep == 1)
+        {
+            <MudPaper Class="pa-6 my-6">
+                <EditForm Model="EmployeeGroup1" OnValidSubmit="Form1">
+                    <DataAnnotationsValidator />
+                    <MudGrid>
+                        <MudItem xs="6">
+                            <MudTextField Label="Fullname" @bind-Value="EmployeeGroup1.Name" Required="true" Class="mb-6" />
+                            <ValidationMessage For="@(() => EmployeeGroup1.Name)" />
 
-                                               <SfDropDownList TValue="string" TItem="GeneralDepartment" Placeholder="@generalDepartment" DataSource="GeneralDepartments">
-                                                   <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
-                                                   <DropDownListEvents TValue="string" TItem="GeneralDepartment" ValueChange="OnGeneralDepartmentValueChange"></DropDownListEvents>
-                                               </SfDropDownList>
-                                            </div>
-                                            <div class="form-group mt-3">
-                                                @{
-                                                    string department = Department.Equals("") ? "Select Department" : Department;
-                                                }
-                                                <label class="form-label">Select Department</label>
-                                                <SfDropDownList TValue="string" TItem="Department" Placeholder="@department" DataSource="Departments">
-                                                    <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
-                                                    <DropDownListEvents TValue="string" TItem="Department" ValueChange="OnDepartmentValueChange"></DropDownListEvents>
-                                                </SfDropDownList>
-                                            </div>
-                                            <div class="form-group mt-3">
-                                                @{
-                                                    string branch = Branch.Equals("") ? "Select Branch" : Branch;
-                                                }
-                                                <label class="form-label">Select Branch</label>
-                                                <SfDropDownList TValue="string" TItem="Branch" Placeholder="@branch" DataSource="Branches">
-                                                    <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
-                                                    <DropDownListEvents TValue="string" TItem="Branch" ValueChange="OnBranchValueChange"></DropDownListEvents>
-                                                </SfDropDownList>
-                                                <ValidationMessage For="()=>EmployeeGroup2.BranchId" class="text-danger"/>
-                                            </div>
-                                            <div class="form-group mt-4 mb-5">
-                                                <button class="btn btn-primary float-start" type="button" @onclick="PrevClicked">
-                                                    <i class="bi bi-arrow-left"></i>
-                                                    Prev
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-4">
-                                        <div class="card-title mb-5 fw-bold" style="font-family:Tahoma">Location Information</div>
-                                        <div class="card-body">
-                                            <div class="form-group">
-                                                @{
-                                                    string country = Country.Equals("") ? "Select Country" : Country;
-                                                }
-                                                <label class="form-label">Select Country</label>                                 
-                                                <SfDropDownList TValue="string" TItem="Country" Placeholder="@country" DataSource="Countries">
-                                                    <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
-                                                    <DropDownListEvents TValue="string" TItem="Country" ValueChange="OnCountryValueChange"></DropDownListEvents>
-                                                </SfDropDownList>
-                                            </div>
-                                            <div class="form-group mt-3">
-                                                @{
-                                                    string city = City.Equals("") ? "Select City" : City;
-                                                }
-                                                <label class="form-label">Select City</label>                                  
-                                                <SfDropDownList TValue="string" TItem="City" Placeholder="@city" DataSource="Cities">
-                                                    <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
-                                                    <DropDownListEvents TValue="string" TItem="City" ValueChange="OnCityValueChange"></DropDownListEvents>
-                                                </SfDropDownList>
-                                            </div>
-                                            <div class="form-group mt-3">
-                                                @{
-                                                    string town = Town.Equals("") ? "Select Town" : Town;
-                                                }
-                                                <label class="form-label">Select Town</label>                                             
-                                                <SfDropDownList TValue="string" TItem="Town" Placeholder="@town" DataSource="Towns">
-                                                    <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
-                                                    <DropDownListEvents TValue="string" TItem="Town" ValueChange="OnTownValueChange"></DropDownListEvents>
-                                                </SfDropDownList>
-                                                <ValidationMessage For="()=>EmployeeGroup2.TownId" class="text-danger" />
-                                            </div>
-                                            <div class="form-group mt-3">
-                                                <label class="form-label">Other</label>
-                                                <textarea @bind="EmployeeGroup2.Other" placeholder="Optional" class="form-control" />
-                                            </div>
-                                            <div class="form-group mt-4 mb-5">
-                                                <button class="btn btn-success float-end" type="submit">
-                                                    <i class="bi bi-save"></i>
-                                                    Save
-                                                </button>
-                                            </div>                                         
-                                        </div>
-                                    </div>
-                                </div>                              
-                                <div class="col-lg-2"></div>
-                            </EditForm>
-                        }
-                    </div>
-                </div>
-            </div>
-        </div>
+                            <MudTextField Label="Telephone" @bind-Value="EmployeeGroup1.TelephoneNumber" Class="mb-6" />
+                            <MudTextField Label="Address" @bind-Value="EmployeeGroup1.Address" Class="mb-6" />
+
+                            <MudImage Src="@EmployeeGroup1.Photo" Width="100" Height="100" Elevation="25" Class="rounded-lg ma-4" FallbackSrc="../images/profile/user.png" />
+                        </MudItem>
+
+                        <MudItem xs="6">
+                            <MudTextField Label="Civil ID" @bind-Value="EmployeeGroup1.CivilId" Class="mb-6" />
+                            <MudTextField Label="File Number" @bind-Value="EmployeeGroup1.FileNumber" Class="mb-6" />
+
+                            <MudText Class="@(!string.IsNullOrEmpty(ImageUploadMessage) ? "mud-error-text" : null)">
+                                @(!string.IsNullOrEmpty(ImageUploadMessage) ? ImageUploadMessage : "Upload Image")
+                            </MudText>
+                            <InputFile OnChange="UploadImage" />
+                            <MudGrid Justify="Justify.FlexEnd" Class="mt-6">
+                                <MudItem>
+                                    <MudButton Color="Color.Primary" Variant="Variant.Filled" ButtonType="MudBlazor.ButtonType.Submit" EndIcon="@Icons.Material.Filled.ArrowForward">
+                                        Next
+                                    </MudButton>
+                                </MudItem>
+                            </MudGrid>
+                        </MudItem>
+                    </MudGrid>
+                </EditForm>
+            </MudPaper>
+        }
+
+        @if (_activeStep == 2)
+        {
+            <MudPaper Class="pa-6 my-6">
+                <EditForm Model="EmployeeGroup2" OnValidSubmit="Form2">
+                    <DataAnnotationsValidator />
+                    <MudGrid>
+                        <MudItem xs="6">
+                            <MudTextField Label="Job Name" @bind-Value="EmployeeGroup2.JobName" Class="mb-6" />
+
+                            <MudSelect T="int" Label="General Department" @bind-Value="EmployeeGroup2.GeneralDepartmentId" Class="mb-6">
+                                @foreach (var item in GeneralDepartments)
+                                {
+                                    <MudSelectItem Value="@item.Id">@item.Name</MudSelectItem>
+                                }
+                            </MudSelect>
+
+                            <MudSelect T="int" Label="Department" @bind-Value="EmployeeGroup2.DepartmentId" Class="mb-6">
+                                @foreach (var item in Departments)
+                                {
+                                    <MudSelectItem Value="@item.Id">@item.Name</MudSelectItem>
+                                }
+                            </MudSelect>
+
+                            <MudSelect T="int" Label="Branch" @bind-Value="EmployeeGroup2.BranchId" Class="mb-6">
+                                @foreach (var item in Branches)
+                                {
+                                    <MudSelectItem Value="@item.Id">@item.Name</MudSelectItem>
+                                }
+                            </MudSelect>
+                        </MudItem>
+
+                        <MudItem xs="6">
+                            <MudSelect T="int" Label="Country" @bind-Value="EmployeeGroup2.CountryId" Class="mb-6">
+                                @foreach (var item in Countries)
+                                {
+                                    <MudSelectItem Value="@item.Id">@item.Name</MudSelectItem>
+                                }
+                            </MudSelect>
+
+                            <MudSelect T="int" Label="City" @bind-Value="EmployeeGroup2.CityId" Class="mb-6">
+                                @foreach (var item in Cities)
+                                {
+                                    <MudSelectItem Value="@item.Id">@item.Name</MudSelectItem>
+                                }
+                            </MudSelect>
+
+                            <MudSelect T="int" Label="Town" @bind-Value="EmployeeGroup2.TownId" Class="mb-6">
+                                @foreach (var item in Towns)
+                                {
+                                    <MudSelectItem Value="@item.Id">@item.Name</MudSelectItem>
+                                }
+                            </MudSelect>
+
+                            <MudTextField Label="Other" @bind-Value="EmployeeGroup2.Other" Lines="5" Variant="Variant.Text" />
+
+                        </MudItem>
+                    </MudGrid>
+                    <MudGrid Justify="Justify.SpaceBetween" Class="mt-6">
+                        <MudItem>
+                            <MudButton Color="Color.Secondary" Variant="Variant.Filled" OnClick="PrevClicked" StartIcon="@Icons.Material.Filled.ArrowBack">
+                                Prev
+                            </MudButton>
+                        </MudItem>
+
+                        <MudItem>
+                            <MudButton Color="Color.Success" Variant="Variant.Filled" EndIcon="@Icons.Material.Filled.Save" ButtonType="MudBlazor.ButtonType.Submit">
+                                Save
+                            </MudButton>
+                        </MudItem>
+                    </MudGrid>
+                </EditForm>
+            </MudPaper>
+        }
     }
-}
-<style>
-    .floatingDiv{
-        width:500px;
-        background: #228ada;
-        height:10px;
-    }
-    .floatingNumber {
-        border-radius:50%;
-        color: white;
-        background: #1d1858;
-        width: 20px;
-        height: 20px;
-    }
-    .inactive-div{
-        width: 500px;
-        background: gray;
-        height: 10px;
-    }
-    .inactive-span{
-        border-radius: 50%;
-        color: white;
-        background: gray;
-        width: 20px;
-        height: 20px;
-    }
-    .format-border {
-        border-radius: 20px;
-    }
-</style>
+</MudPaper>
+
 
 @code {
     [Parameter] public Employee Employee { get; set; } = new();
 
-    [Parameter] public bool ShowAddOrUpdateEmployee{ get; set; }
+    [Parameter] public bool ShowAddOrUpdateEmployee { get; set; }
     [Parameter] public EmployeeGrouping1 EmployeeGroup1 { get; set; } = new();
     [Parameter] public EmployeeGrouping2 EmployeeGroup2 { get; set; } = new();
 
@@ -244,16 +143,7 @@
 
     [Parameter] public List<GeneralDepartment> GeneralDepartments { get; set; } = new();
     [Parameter] public List<Department> Departments { get; set; } = new();
-    [Parameter] public List<Branch> Branches { get; set; } = new();    
-
-    string FloatingNumber1 = "floatingNumber";
-    string Floatingdiv1 = "floatingDiv";
-
-    string FloatingNumber2 = "inactive-span";
-    string Floatingdiv2 = "inactive-div";
-
-    public bool FirstLayer { get; set; } = true;
-    public bool SecondLayer { get; set; } = false;
+    [Parameter] public List<Branch> Branches { get; set; } = new();
 
     public string Title { get; set; } = "Add";
 
@@ -264,21 +154,10 @@
     public string City { get; set; } = "";
     public string Town { get; set; } = "";
 
-    private void ShowLayer2()
-    {
-        FirstLayer = false;
-        SecondLayer = true;
-    }
-
-    void PrevClicked()
-    {
-        FirstLayer = true;
-        SecondLayer = false;
-    }
 
     //Form closed
-    [Parameter] public EventCallback NotifyParentFormCloseClicked{ get; set; }
-    async Task Closeform()
+    [Parameter] public EventCallback NotifyParentFormCloseClicked { get; set; }
+    public async Task Closeform()
     {
         ShowAddOrUpdateEmployee = false;
         await NotifyParentFormCloseClicked.InvokeAsync();
@@ -288,7 +167,7 @@
     string ImageUploadMessage = "";
     private async Task UploadImage(InputFileChangeEventArgs e)
     {
-        if(e.File.Name.ToLower().Contains(".png"))
+        if (e.File.Name.ToLower().Contains(".png"))
         {
             var format = "image/png";
             var resizeImage = await e.File.RequestImageFileAsync(format, 300, 300);
@@ -329,10 +208,10 @@
         else
             return true;
     }
-
+    private int _activeStep = 1;
     //Save forms
     [Parameter] public EventCallback<Employee> HandleSaveEmployeeCLickedEvent { get; set; }
-    private void Form1()
+    private async Task Form1()
     {
         var isValid = ValidateEmployeeGroup1();
         if (isValid)
@@ -343,7 +222,7 @@
             Employee.CivilId = EmployeeGroup1.CivilId;
             Employee.FileNumber = EmployeeGroup1.FileNumber;
             Employee.Photo = EmployeeGroup1.Photo;
-            ShowLayer2();
+            _activeStep = 2;
         }
     }
 
@@ -362,6 +241,8 @@
         }
     }
 
+    private void PrevClicked() => _activeStep = 1;
+
     public void ClearContent()
     {
         EmployeeGroup1 = new();
@@ -373,7 +254,7 @@
     protected override void OnInitialized()
     {
         allState.Action += StateHasChanged;
-    }   
+    }
 
     //Country //City //Town
     [Parameter] public EventCallback<int> HandleCountrySelectedEvent { get; set; }
@@ -411,5 +292,5 @@
         EmployeeGroup2.BranchId = int.Parse(args.Value);
     }
 
-    public void Dispose() => allState.Action -= StateHasChanged;  
+    public void Dispose() => allState.Action -= StateHasChanged;
 }

@@ -1,97 +1,121 @@
-﻿@implements IDisposable
-
-@if(allState.ShowEmployee)
+@implements IDisposable
+@inject IJSRuntime JS
+@using System.Text.Json
+@inject ISnackbar Snackbar
+@if (allState.ShowEmployee)
 {
-    if(ShowMainPage)
+    if (ShowMainPage)
     {
-        <div class="container-fluid mt-5">
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="card">
-                        <div class="card-header"><button class="btn btn-outline-success" @onclick="ShowAddOrUpdateEmployeeButtonClicked"><i class="bi bi-plus-circle-dotted"></i>Add Employee</button></div>
-                         <div class="card-body">
-                            @{
-                                var Tool = (new List<string>() { "Search", "ExcelExport", "PdfExport", "Print" });
-                            }
-                             <SfGrid DataSource="@Employees" AllowPaging="true" AllowSorting="true" Toolbar=@Tool AllowExcelExport="true" @ref="DefaultGrid" AllowPdfExport="true">
-                                 <GridColumns>
-                                     <GridColumn HeaderText="Employee Image">
-                                         <Template>
-                                            @{
-                                                var employee = (context as Employee);
-                                                <div class="image">
-                                                    <img src="@employee!.Photo" alt="@employee.Name" width="150" height="150" />
-                                                    
-                                                </div>
-                                             }
-                                         </Template>
-                                     </GridColumn>
-                                     <GridColumn Field=@nameof(Employee.CivilId) HeaderText="Civil ID"></GridColumn>
-                                     <GridColumn Field=@nameof(Employee.FileNumber) HeaderText="File Number"></GridColumn>
-                                     <GridColumn Field=@nameof(Employee.Name) HeaderText="Name"></GridColumn>
-                                     <GridColumn Field=@nameof(Employee.TelephoneNumber) HeaderText="Telephone"></GridColumn>
-                                     <GridColumn Field=@nameof(Employee.JobName) HeaderText="Job Name"></GridColumn>
-                                    <GridColumn Field=@nameof(Branch.Name) HeaderText="Branch"></GridColumn>
-                                     <GridColumn Field=@nameof(Town.Name) HeaderText="Town"></GridColumn>
-                                     <GridColumn HeaderText="Menu" HeaderTextAlign="TextAlign.Left">
-                                         <Template>
-                                            @{
-                                                var employee = (context as Employee);
-                                                <i class="bi bi-menu-down text-primary" id="cursorStyle" @onclick="()=>ShowMenuPopUp(employee!)"></i>
-                                            }
-                                         </Template>
-                                     </GridColumn>
-                                 </GridColumns>
-                             </SfGrid>                          
-                         </div>
-                        <div class="card-footer"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-12">
+            <MudGrid>
+                <MudItem xs="12">
+                    <MudPaper Elevation="4" Class="p-4">
+                        <MudStack Row AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Class="mb-4">
+                            <MudButton Variant="Variant.Outlined"
+                            Color="MudBlazor.Color.Success"
+                            StartIcon="@Icons.Material.Filled.PersonAdd"
+                            OnClick="ShowAddOrUpdateEmployeeButtonClicked">
+                                Add Employee
+                            </MudButton>
+                            <MudStack Row Spacing="2">
+                                <MudButton Variant="Variant.Filled" Color="MudBlazor.Color.Primary" StartIcon="@Icons.Material.Filled.Download" OnClick="ExportToExcel">
+                                    Export Excel
+                                </MudButton>
+                                <MudButton Variant="Variant.Filled" Color="MudBlazor.Color.Secondary" StartIcon="@Icons.Material.Filled.PictureAsPdf" OnClick="ExportToPdf">
+                                    Export PDF
+                                </MudButton>
+                                <MudButton Variant="Variant.Filled" Color="MudBlazor.Color.Tertiary" StartIcon="@Icons.Material.Filled.Print" OnClick="PrintGrid">
+                                    Print
+                                </MudButton>
+                            </MudStack>
+                        </MudStack>
+                        <MudDataGrid Items="@Employees"
+                        T="Employee"
+                        MultiSelection="true"
+                        Bordered="true"
+                        Striped="true"
+                        Hover="true"
+                        Dense="true"
+                        SortMode="SortMode.Multiple"
+                        Filterable="true"
+                        QuickFilter="@_quickFilter">
+                            <ToolBarContent>
+                                <MudText Typo="Typo.h6">Employees</MudText>
+                                <MudSpacer />
+                                <MudTextField @bind-Value="_searchString" Placeholder="Search" Adornment="Adornment.Start" Immediate="true"
+                                AdornmentIcon="@Icons.Material.Filled.Search" IconSize="MudBlazor.Size.Medium" Class="mt-0"></MudTextField>
+                            </ToolBarContent>
+                            <Columns>
+                                @*  <Column Title="Employee Image">
+                                    <CellTemplate Context="employee">
+                                        <MudAvatar Image="@employee.Photo" Size="Size.Large" Alt="@employee.Name" />
+                                    </CellTemplate>
+                                </Column> *@
+
+                                <PropertyColumn Property="e => e.CivilId" Title="Civil ID" />
+                                <PropertyColumn Property="e => e.FileNumber" Title="File Number" />
+                                <PropertyColumn Property="e => e.Name" Title="Name" />
+                                <PropertyColumn Property="e => e.TelephoneNumber" Title="Telephone" />
+                                <PropertyColumn Property="e => e.JobName" Title="Job Name" />
+                                <PropertyColumn Property="e => e.Branch.Name" Title="Branch" />
+                                <PropertyColumn Property="e => e.Town.Name" Title="Town" />
+
+                                @*   <Column Title="Menu">
+                                    <CellTemplate Context="employee">
+                                        <MudIconButton Icon="@Icons.Material.Filled.MoreVert"
+                                                       Color="Color.Primary"
+                                                       OnClick="@(() => ShowMenuPopUp(employee))" />
+                                    </CellTemplate>
+                                </Column> *@
+                            </Columns>
+                        </MudDataGrid>
+                    </MudPaper>
+                </MudItem>
+            </MudGrid>
+        </MudContainer>
     }
 }
-<AddOrUpdateEmployeePage @ref="addOrUpdateEmployeePage" 
-                         Employee="Employee"  
-                         ShowAddOrUpdateEmployee="ShowAddOrUpdatePage"
-                         NotifyParentFormCloseClicked="NotifyParentFormCloseClicked"
-                         Countries="DefaultCountries"
-                         Cities="SelectedCities"
-                         Towns="SelectedTowns"
-                         GeneralDepartments="DefaultGeneralDepartments"
-                         Departments="SelectedDepartments"   
-                         Branches="SelectedBranches"
-                         HandleCountrySelectedEvent="HandleCountrySelectedEvent"
-                         HandleCitySelectedEvent="HandleCitySelectedEvent"
-                         HandleGeneralDepartmentSelectedEvent="HandleGeneralDepartmentSelectedEvent"
-                         HandleDepartmentSelectedEvent="HandleDepartmentSelectedEvent"
-                         HandleSaveEmployeeCLickedEvent="HandleSaveEmployeeCLickedEvent">
+<AddOrUpdateEmployeePage @ref="addOrUpdateEmployeePage"
+Employee="Employee"
+ShowAddOrUpdateEmployee="ShowAddOrUpdatePage"
+NotifyParentFormCloseClicked="NotifyParentFormCloseClicked"
+Countries="DefaultCountries"
+Cities="DefaultCities"
+Towns="DefaultTowns"
+GeneralDepartments="DefaultGeneralDepartments"
+Departments="DefaultDepartments"
+Branches="DefaultBranches"
+HandleCountrySelectedEvent="HandleCountrySelectedEvent"
+HandleCitySelectedEvent="HandleCitySelectedEvent"
+HandleGeneralDepartmentSelectedEvent="HandleGeneralDepartmentSelectedEvent"
+HandleDepartmentSelectedEvent="HandleDepartmentSelectedEvent"
+HandleSaveEmployeeCLickedEvent="HandleSaveEmployeeCLickedEvent">
 </AddOrUpdateEmployeePage>
 
 <EmployeeDetailPage EmployeeDetails="Employee"
-    ShowDetailsPage="ShowDetailsPage"
-                    HandleDetailsPageCloseBtnClicked="HandleDetailsPageCloseBtnClicked" />
-<ContextMenu @ref="contextMenu" 
-        HandleDeleteClicked="DeleteClicked"
-        HandleEditClicked="EditClicked"
-        HandleViewClicked="ViewClicked"
-        HandleAddHealthClicked="AddHealthClicked"
-        HandleAddOvertimeClicked="AddOvertimeClicked"
-        HandleAddSanctionClicked="AddSanctionClicked"
-        HandleAddVacationClicked="AddVacationClicked" />
+ShowDetailsPage="ShowDetailsPage"
+HandleDetailsPageCloseBtnClicked="HandleDetailsPageCloseBtnClicked" />
+<ContextMenu @ref="contextMenu"
+HandleDeleteClicked="DeleteClicked"
+HandleEditClicked="EditClicked"
+HandleViewClicked="ViewClicked"
+HandleAddHealthClicked="AddHealthClicked"
+HandleAddOvertimeClicked="AddOvertimeClicked"
+HandleAddSanctionClicked="AddSanctionClicked"
+HandleAddVacationClicked="AddVacationClicked" />
 
-<DoctorDialog @ref="doctorDialog" Doctor="Doctor" HandleSaveOperationEvent="SaveHealthEvent"/>
+<DoctorDialog @ref="doctorDialog" Doctor="Doctor" HandleSaveOperationEvent="SaveHealthEvent" />
 
-<OvertimeDialog @ref="overtimeDialog" ItemModel="Overtime" OvertimeTypes="OvertimeTypes" HandleSaveOperationEvent="SaveOvertimeEvent"/>
+<OvertimeDialog @ref="overtimeDialog" ItemModel="Overtime" OvertimeTypes="OvertimeTypes" HandleSaveOperationEvent="SaveOvertimeEvent" />
 
-<SanctionDialog @ref="sanctionDialog" ItemModel="Sanction" SanctionTypes="SanctionTypes" HandleSaveOperationEvent="SaveSanctionEvent"/>
+<SanctionDialog @ref="sanctionDialog" ItemModel="Sanction" SanctionTypes="SanctionTypes" HandleSaveOperationEvent="SaveSanctionEvent" />
 
 <VacationDialog @ref="vacationDialog" ItemModel="Vacation" VacationTypes="VacationTypes" HandleSaveOperationEvent="SaveVacationEvent" />
 
 @code {
     private SfGrid<Employee>? DefaultGrid;
     AddOrUpdateEmployeePage? addOrUpdateEmployeePage;
-    public List<Employee> Employees { get; set; } = [];
+    public IEnumerable<Employee> Employees { get; set; } = [];
     public Employee Employee { get; set; } = new();
 
     //Country /City / Town
@@ -163,7 +187,7 @@
     async Task HandleSaveEmployeeCLickedEvent(Employee employee)
     {
         bool successCheck = false;
-        if(employee.Id > 0)
+        if (employee.Id > 0)
         {
             var result = await employeeService.Update(employee, Constants.EmployeeBaseUrl);
             successCheck = await DisplayMessage(result.Flag, result.Message);
@@ -174,7 +198,10 @@
             successCheck = await DisplayMessage(response.Flag, response.Message);
         }
         if (successCheck)
+        {
             addOrUpdateEmployeePage!.ClearContent();
+            await addOrUpdateEmployeePage!.Closeform();            
+        }
     }
 
     public bool ShowMainPage { get; set; } = true;
@@ -193,7 +220,7 @@
     //Edit clicked
     void EditClicked()
     {
-        //EmployeeGrouping1 
+        //EmployeeGrouping1
         addOrUpdateEmployeePage!.Employee.Id = SelectedEmployee.Id;
         addOrUpdateEmployeePage!.EmployeeGroup1.Name = SelectedEmployee.Name!;
         addOrUpdateEmployeePage!.EmployeeGroup1.TelephoneNumber = SelectedEmployee.TelephoneNumber!;
@@ -280,7 +307,7 @@
         item.EmployeeId = SelectedEmployee.Id;
         var (flag, message) = await doctorService.Insert(item, Constants.DoctorBaseUrl);
         var response = await DisplayMessage(flag, message);
-        if(response)
+        if (response)
         {
             SelectedEmployee = new();
             Doctor = new();
@@ -370,32 +397,60 @@
         ShowDetailsPage = false;
         ShowMainPage = true;
     }
-
-    //Excel export / PDF Export
-    public async Task ToolbarClickHandler(ClickEventArgs args)
-    {
-        if (args.Item.Text == "Excel Export")
-            await this.DefaultGrid!.ExcelExport()!;
-
-        if (args.Item.Text == "PDF Export")
-            await this.DefaultGrid!.PdfExport()!;
-
-    }
+   
 
     //Display message using dialog service
     private async Task<bool> DisplayMessage(bool flag, string message)
     {
         if (flag)
         {
-            await dialogService.AlertAsync(message, "Success Operation");
+            Snackbar.Add(message, Severity.Success);
             return true;
         }
         else
         {
-            await dialogService.AlertAsync(message, "Alert!");
+            Snackbar.Add(message, Severity.Error);
             return false;
         }
     }
-
     public void Dispose() => allState.Action -= StateHasChanged;
+
+    string _searchString = null;
+
+    private Func<Employee, bool> _quickFilter => x =>
+    {
+        if (string.IsNullOrWhiteSpace(_searchString))
+            return true;
+        if (x.Name.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (x.JobName.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (x.Branch.Name.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (x.Town.Name.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if ($"{x.CivilId} {x.FileNumber} {x.TelephoneNumber}".Contains(_searchString))
+            return true;
+        return false;
+    };
+    //Excel export / PDF Export
+    private async Task ExportToPdf()
+    {
+        var json = JsonSerializer.Serialize(Employees, new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        });
+        await JS.InvokeVoidAsync("pdfUtils.generateEmployeePdf", json);
+    }
+
+    private async Task ExportToExcel()
+    {
+        var json = JsonSerializer.Serialize(Employees);
+        await JS.InvokeVoidAsync("excelUtils.exportToExcel", json);
+    }
+    
+    private async Task PrintGrid()
+    {
+        await JS.InvokeVoidAsync("printGrid");
+    }
 }
