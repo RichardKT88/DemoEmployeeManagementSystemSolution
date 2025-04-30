@@ -12,9 +12,9 @@
                     <MudPaper Elevation="4" Class="p-4">
                         <MudStack Row AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Class="mb-4">
                             <MudButton Variant="Variant.Outlined"
-                            Color="MudBlazor.Color.Success"
-                            StartIcon="@Icons.Material.Filled.PersonAdd"
-                            OnClick="ShowAddOrUpdateEmployeeButtonClicked">
+                                       Color="MudBlazor.Color.Success"
+                                       StartIcon="@Icons.Material.Filled.PersonAdd"
+                                       OnClick="ShowAddOrUpdateEmployeeButtonClicked">
                                 Add Employee
                             </MudButton>
                             <MudStack Row Spacing="2">
@@ -30,28 +30,27 @@
                             </MudStack>
                         </MudStack>
                         <MudDataGrid Items="@Employees"
-                        T="Employee"
-                        MultiSelection="true"
-                        Bordered="true"
-                        Striped="true"
-                        Hover="true"
-                        Dense="true"
-                        SortMode="SortMode.Multiple"
-                        Filterable="true"
-                        QuickFilter="@_quickFilter">
+                                     T="Employee"
+                                     MultiSelection="true"
+                                     Bordered="true"
+                                     Striped="true"
+                                     Hover="true"
+                                     Dense="true"
+                                     SortMode="SortMode.Multiple"
+                                     Filterable="true"
+                                     QuickFilter="@_quickFilter">
                             <ToolBarContent>
                                 <MudText Typo="Typo.h6">Employees</MudText>
                                 <MudSpacer />
                                 <MudTextField @bind-Value="_searchString" Placeholder="Search" Adornment="Adornment.Start" Immediate="true"
-                                AdornmentIcon="@Icons.Material.Filled.Search" IconSize="MudBlazor.Size.Medium" Class="mt-0"></MudTextField>
+                                              AdornmentIcon="@Icons.Material.Filled.Search" IconSize="MudBlazor.Size.Medium" Class="mt-0"></MudTextField>
                             </ToolBarContent>
                             <Columns>
-                                @*  <Column Title="Employee Image">
-                                    <CellTemplate Context="employee">
-                                        <MudAvatar Image="@employee.Photo" Size="Size.Large" Alt="@employee.Name" />
+                                <TemplateColumn T="Employee" Title="Employee Image">
+                                    <CellTemplate>
+                                        <MudImage Src="@context.Item.Photo" width="150" height="150" Alt="@context.Item.Name" />
                                     </CellTemplate>
-                                </Column> *@
-
+                                </TemplateColumn>
                                 <PropertyColumn Property="e => e.CivilId" Title="Civil ID" />
                                 <PropertyColumn Property="e => e.FileNumber" Title="File Number" />
                                 <PropertyColumn Property="e => e.Name" Title="Name" />
@@ -59,14 +58,12 @@
                                 <PropertyColumn Property="e => e.JobName" Title="Job Name" />
                                 <PropertyColumn Property="e => e.Branch.Name" Title="Branch" />
                                 <PropertyColumn Property="e => e.Town.Name" Title="Town" />
-
-                                @*   <Column Title="Menu">
-                                    <CellTemplate Context="employee">
-                                        <MudIconButton Icon="@Icons.Material.Filled.MoreVert"
-                                                       Color="Color.Primary"
-                                                       OnClick="@(() => ShowMenuPopUp(employee))" />
-                                    </CellTemplate>
-                                </Column> *@
+                                <TemplateColumn T="Employee" Title="Menu">
+                                    <CellTemplate>
+                                        <MudIconButton Icon="@Icons.Material.Filled.Menu"
+                                                       Color="Color.Primary"/>
+                                    </CellTemplate>                                    
+                                </TemplateColumn>
                             </Columns>
                         </MudDataGrid>
                     </MudPaper>
@@ -76,33 +73,33 @@
     }
 }
 <AddOrUpdateEmployeePage @ref="addOrUpdateEmployeePage"
-Employee="Employee"
-ShowAddOrUpdateEmployee="ShowAddOrUpdatePage"
-NotifyParentFormCloseClicked="NotifyParentFormCloseClicked"
-Countries="DefaultCountries"
-Cities="DefaultCities"
-Towns="DefaultTowns"
-GeneralDepartments="DefaultGeneralDepartments"
-Departments="DefaultDepartments"
-Branches="DefaultBranches"
-HandleCountrySelectedEvent="HandleCountrySelectedEvent"
-HandleCitySelectedEvent="HandleCitySelectedEvent"
-HandleGeneralDepartmentSelectedEvent="HandleGeneralDepartmentSelectedEvent"
-HandleDepartmentSelectedEvent="HandleDepartmentSelectedEvent"
-HandleSaveEmployeeCLickedEvent="HandleSaveEmployeeCLickedEvent">
+                         Employee="Employee"
+                         ShowAddOrUpdateEmployee="ShowAddOrUpdatePage"
+                         NotifyParentFormCloseClicked="NotifyParentFormCloseClicked"
+                         Countries="DefaultCountries"
+                         Cities="DefaultCities"
+                         Towns="DefaultTowns"
+                         GeneralDepartments="DefaultGeneralDepartments"
+                         Departments="DefaultDepartments"
+                         Branches="DefaultBranches"
+                         HandleCountrySelectedEvent="HandleCountrySelectedEvent"
+                         HandleCitySelectedEvent="HandleCitySelectedEvent"
+                         HandleGeneralDepartmentSelectedEvent="HandleGeneralDepartmentSelectedEvent"
+                         HandleDepartmentSelectedEvent="HandleDepartmentSelectedEvent"
+                         HandleSaveEmployeeCLickedEvent="HandleSaveEmployeeCLickedEvent">
 </AddOrUpdateEmployeePage>
 
 <EmployeeDetailPage EmployeeDetails="Employee"
-ShowDetailsPage="ShowDetailsPage"
-HandleDetailsPageCloseBtnClicked="HandleDetailsPageCloseBtnClicked" />
+                    ShowDetailsPage="ShowDetailsPage"
+                    HandleDetailsPageCloseBtnClicked="HandleDetailsPageCloseBtnClicked" />
 <ContextMenu @ref="contextMenu"
-HandleDeleteClicked="DeleteClicked"
-HandleEditClicked="EditClicked"
-HandleViewClicked="ViewClicked"
-HandleAddHealthClicked="AddHealthClicked"
-HandleAddOvertimeClicked="AddOvertimeClicked"
-HandleAddSanctionClicked="AddSanctionClicked"
-HandleAddVacationClicked="AddVacationClicked" />
+             HandleDeleteClicked="DeleteClicked"
+             HandleEditClicked="EditClicked"
+             HandleViewClicked="ViewClicked"
+             HandleAddHealthClicked="AddHealthClicked"
+             HandleAddOvertimeClicked="AddOvertimeClicked"
+             HandleAddSanctionClicked="AddSanctionClicked"
+             HandleAddVacationClicked="AddVacationClicked" />
 
 <DoctorDialog @ref="doctorDialog" Doctor="Doctor" HandleSaveOperationEvent="SaveHealthEvent" />
 
@@ -200,7 +197,7 @@ HandleAddVacationClicked="AddVacationClicked" />
         if (successCheck)
         {
             addOrUpdateEmployeePage!.ClearContent();
-            await addOrUpdateEmployeePage!.Closeform();            
+            await addOrUpdateEmployeePage!.Closeform();
         }
     }
 
@@ -397,7 +394,7 @@ HandleAddVacationClicked="AddVacationClicked" />
         ShowDetailsPage = false;
         ShowMainPage = true;
     }
-   
+
 
     //Display message using dialog service
     private async Task<bool> DisplayMessage(bool flag, string message)
@@ -437,9 +434,9 @@ HandleAddVacationClicked="AddVacationClicked" />
     private async Task ExportToPdf()
     {
         var json = JsonSerializer.Serialize(Employees, new JsonSerializerOptions
-        {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-        });
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            });
         await JS.InvokeVoidAsync("pdfUtils.generateEmployeePdf", json);
     }
 
@@ -448,7 +445,7 @@ HandleAddVacationClicked="AddVacationClicked" />
         var json = JsonSerializer.Serialize(Employees);
         await JS.InvokeVoidAsync("excelUtils.exportToExcel", json);
     }
-    
+
     private async Task PrintGrid()
     {
         await JS.InvokeVoidAsync("printGrid");
