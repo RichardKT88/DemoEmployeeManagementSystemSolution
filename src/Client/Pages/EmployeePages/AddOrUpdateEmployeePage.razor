@@ -1,4 +1,4 @@
-@implements IDisposable
+    @implements IDisposable
 
 <MudPaper Class="mt-12 mx-auto" Style="width:1200px;">
     @if (allState.ShowEmployee && ShowAddOrUpdateEmployee)
@@ -7,6 +7,9 @@
             <MudItem xs="1">
                 <MudIconButton Icon="@Icons.Material.Filled.Close" Color="Color.Error" OnClick="Closeform" />
             </MudItem>
+            @{                                  
+                Title = Employee.Id > 0 ? "Update" : "Add";                           
+            }
             <MudItem xs="10" Class="text-center">
                 <MudText Typo="Typo.h5">@Title Employee</MudText>
             </MudItem>
@@ -23,22 +26,23 @@
                     <DataAnnotationsValidator />
                     <MudGrid>
                         <MudItem xs="6">
-                            <MudTextField Label="Fullname" @bind-Value="EmployeeGroup1.Name" Required="true" Class="mb-6" />
-                            <ValidationMessage For="@(() => EmployeeGroup1.Name)" />
+                            <MudTextField Label="Fullname" @bind-Value="EmployeeGroup1.Name" For="@(() => EmployeeGroup1.Name)" Class="mb-6" />
 
-                            <MudTextField Label="Telephone" @bind-Value="EmployeeGroup1.TelephoneNumber" Class="mb-6" />
-                            <MudTextField Label="Address" @bind-Value="EmployeeGroup1.Address" Class="mb-6" />
+                            <MudTextField Label="Telephone" @bind-Value="EmployeeGroup1.TelephoneNumber" For="@(() => EmployeeGroup1.TelephoneNumber)" Class="mb-6" />
+
+                            <MudTextField Label="Address" @bind-Value="EmployeeGroup1.Address" For="@(() => EmployeeGroup1.Address)" Class="mb-6" />
 
                             <MudImage Src="@EmployeeGroup1.Photo" Width="100" Height="100" Elevation="25" Class="rounded-lg ma-4" FallbackSrc="../images/profile/user.png" />
                         </MudItem>
 
                         <MudItem xs="6">
-                            <MudTextField Label="Civil ID" @bind-Value="EmployeeGroup1.CivilId" Class="mb-6" />
-                            <MudTextField Label="File Number" @bind-Value="EmployeeGroup1.FileNumber" Class="mb-6" />
+                            <MudTextField Label="Civil ID" @bind-Value="EmployeeGroup1.CivilId" For="@(() => EmployeeGroup1.CivilId)" Class="mb-6" />
+
+                            <MudTextField Label="File Number" @bind-Value="EmployeeGroup1.FileNumber" For="@(() => EmployeeGroup1.FileNumber)" Class="mb-6" />
 
                             <MudText Class="@(!string.IsNullOrEmpty(ImageUploadMessage) ? "mud-error-text" : null)">
                                 @(!string.IsNullOrEmpty(ImageUploadMessage) ? ImageUploadMessage : "Upload Image")
-                            </MudText>
+                            </MudText>                          
                             <InputFile OnChange="UploadImage" />
                             <MudGrid Justify="Justify.FlexEnd" Class="mt-6">
                                 <MudItem>
@@ -59,47 +63,66 @@
                 <EditForm Model="EmployeeGroup2" OnValidSubmit="Form2">
                     <DataAnnotationsValidator />
                     <MudGrid>
-                        <MudItem xs="6">
-                            <MudTextField Label="Job Name" @bind-Value="EmployeeGroup2.JobName" Class="mb-6" />
+                        <MudItem xs="6">                          
+                            <MudTextField Label="Job Name" @bind-Value="EmployeeGroup2.JobName" For="@(() => EmployeeGroup2.JobName)" Class="mb-6" />
 
+                            @if (EmployeeGroup2.GeneralDepartmentId == 0)        
+                            {                                  
+                                EmployeeGroup2.GeneralDepartmentId = GeneralDepartment;                                    
+                            }
                             <MudSelect T="int" Label="General Department" @bind-Value="EmployeeGroup2.GeneralDepartmentId" Class="mb-6">
                                 @foreach (var item in GeneralDepartments)
                                 {
                                     <MudSelectItem Value="@item.Id">@item.Name</MudSelectItem>
                                 }
                             </MudSelect>
-
+                            @if (EmployeeGroup2.DepartmentId == 0)        
+                            {                                  
+                                EmployeeGroup2.DepartmentId = Department;                                    
+                            }
                             <MudSelect T="int" Label="Department" @bind-Value="EmployeeGroup2.DepartmentId" Class="mb-6">
                                 @foreach (var item in Departments)
                                 {
                                     <MudSelectItem Value="@item.Id">@item.Name</MudSelectItem>
                                 }
                             </MudSelect>
-
-                            <MudSelect T="int" Label="Branch" @bind-Value="EmployeeGroup2.BranchId" Class="mb-6">
+                            @if (EmployeeGroup2.BranchId == 0)        
+                            {                                  
+                                EmployeeGroup2.BranchId = Branch;                                    
+                            }
+                            <MudSelect T="int" Label="Branch" @bind-Value="EmployeeGroup2.BranchId" For="@(() => EmployeeGroup2.BranchId)" Class="mb-6">
                                 @foreach (var item in Branches)
                                 {
                                     <MudSelectItem Value="@item.Id">@item.Name</MudSelectItem>
                                 }
                             </MudSelect>
                         </MudItem>
-
                         <MudItem xs="6">
+                            @if (EmployeeGroup2.CountryId == 0)        
+                            {                                  
+                                EmployeeGroup2.CountryId = Country;                                    
+                            }
                             <MudSelect T="int" Label="Country" @bind-Value="EmployeeGroup2.CountryId" Class="mb-6">
                                 @foreach (var item in Countries)
                                 {
                                     <MudSelectItem Value="@item.Id">@item.Name</MudSelectItem>
                                 }
                             </MudSelect>
-
+                            @if (EmployeeGroup2.CityId == 0)        
+                            {                                  
+                                EmployeeGroup2.CityId = City;                                    
+                            }
                             <MudSelect T="int" Label="City" @bind-Value="EmployeeGroup2.CityId" Class="mb-6">
                                 @foreach (var item in Cities)
                                 {
                                     <MudSelectItem Value="@item.Id">@item.Name</MudSelectItem>
                                 }
                             </MudSelect>
-
-                            <MudSelect T="int" Label="Town" @bind-Value="EmployeeGroup2.TownId" Class="mb-6">
+                            @if (EmployeeGroup2.TownId == 0)        
+                            {                                  
+                                EmployeeGroup2.TownId = Town;                                    
+                            }
+                            <MudSelect T="int" Label="Town" @bind-Value="EmployeeGroup2.TownId" For="@(() => EmployeeGroup2.TownId)" Class="mb-6">
                                 @foreach (var item in Towns)
                                 {
                                     <MudSelectItem Value="@item.Id">@item.Name</MudSelectItem>
@@ -141,18 +164,18 @@
     [Parameter] public List<City> Cities { get; set; } = new();
     [Parameter] public List<Town> Towns { get; set; } = new();
 
-    [Parameter] public List<GeneralDepartment> GeneralDepartments { get; set; } = new();
+    [Parameter] public List<GeneralDepartment> GeneralDepartments { get; set; }
     [Parameter] public List<Department> Departments { get; set; } = new();
     [Parameter] public List<Branch> Branches { get; set; } = new();
 
-    public string Title { get; set; } = "Add";
+    public string Title { get; set; } = "";
 
-    public string GeneralDepartment { get; set; } = "";
-    public string Department { get; set; } = "";
-    public string Branch { get; set; } = "";
-    public string Country { get; set; } = "";
-    public string City { get; set; } = "";
-    public string Town { get; set; } = "";
+    public int GeneralDepartment { get; set; } 
+    public int Department { get; set; }
+    public int Branch { get; set; }
+    public int Country { get; set; }
+    public int City { get; set; }
+    public int Town { get; set; }
 
 
     //Form closed
@@ -160,6 +183,8 @@
     public async Task Closeform()
     {
         ShowAddOrUpdateEmployee = false;
+        _activeStep = 1;        
+        ClearContent();
         await NotifyParentFormCloseClicked.InvokeAsync();
     }
 
@@ -237,7 +262,7 @@
             Employee.TownId = EmployeeGroup2.TownId;
 
             await HandleSaveEmployeeCLickedEvent.InvokeAsync(Employee);
-
+            _activeStep = 1;
         }
     }
 
@@ -247,6 +272,13 @@
     {
         EmployeeGroup1 = new();
         EmployeeGroup2 = new();
+        Employee.Id = 0;
+        GeneralDepartment = 0; 
+        Department = 0;
+        Branch = 0;
+        Country = 0;
+        City = 0;
+        Town = 0;
         Employee = new();
         StateHasChanged();
     }
@@ -255,42 +287,6 @@
     {
         allState.Action += StateHasChanged;
     }
-
-    //Country //City //Town
-    [Parameter] public EventCallback<int> HandleCountrySelectedEvent { get; set; }
-    public void OnCountryValueChange(ChangeEventArgs<string, Country> args)
-    {
-        HandleCountrySelectedEvent.InvokeAsync(int.Parse(args.Value));
-    }
-
-    [Parameter] public EventCallback<int> HandleCitySelectedEvent { get; set; }
-    public async Task OnCityValueChange(ChangeEventArgs<string, City> args)
-    {
-        await HandleCitySelectedEvent.InvokeAsync(int.Parse(args.Value));
-    }
-
-    public void OnTownValueChange(ChangeEventArgs<string, Town> args)
-    {
-        EmployeeGroup2.TownId = int.Parse(args.Value);
-    }
-
-    //General Department //Department //Branch
-    [Parameter] public EventCallback<int> HandleGeneralDepartmentSelectedEvent { get; set; }
-    public async Task OnGeneralDepartmentValueChange(ChangeEventArgs<string, GeneralDepartment> args)
-    {
-        await HandleGeneralDepartmentSelectedEvent.InvokeAsync(int.Parse(args.Value));
-    }
-
-    [Parameter] public EventCallback<int> HandleDepartmentSelectedEvent { get; set; }
-    public async Task OnDepartmentValueChange(ChangeEventArgs<string, Department> args)
-    {
-        await HandleDepartmentSelectedEvent.InvokeAsync(int.Parse(args.Value));
-    }
-
-    public void OnBranchValueChange(ChangeEventArgs<string, Branch> args)
-    {
-        EmployeeGroup2.BranchId = int.Parse(args.Value);
-    }
-
+    
     public void Dispose() => allState.Action -= StateHasChanged;
 }

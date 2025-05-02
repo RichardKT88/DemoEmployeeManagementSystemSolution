@@ -13,7 +13,6 @@
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.1" PrivateAssets="all" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0" />
     <PackageReference Include="MudBlazor" Version="8.5.1" />
-    <PackageReference Include="QuestPDF" Version="2025.4.0" />
     <PackageReference Include="Syncfusion.Blazor.Buttons" Version="23.1.36" />
     <PackageReference Include="Syncfusion.Blazor.DropDowns" Version="23.1.36" />
     <PackageReference Include="Syncfusion.Blazor.Grid" Version="23.1.36" />

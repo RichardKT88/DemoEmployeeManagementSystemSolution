@@ -1,82 +1,62 @@
-﻿<SfDialog Width="100px" IsModal="true" ShowCloseIcon="true" @bind-Visible="IsVisible">
-    <DialogEvents OnOpen="OpenContextMenu"> </DialogEvents>
-    <DialogTemplates >
-        <Header>Employee Menu</Header>
-        <Content>
-            <div class="hstack gap-2 mb-2" id="cursorStyle" @onclick="ViewClicked">
-                <i class="bi bi-eye text-info"></i>
-                <span id="cursorStyle" class="text-info">View</span>
-            </div>
-            <div class="hstack gap-2 mb-2" id="cursorStyle" @onclick="EditClicked">
-                <i class="bi bi-pencil text-primary"></i>
-                <span id="cursorStyle" class="text-primary">Edit</span>
-            </div>
-            <div class="hstack gap-2 mb-2" id="cursorStyle" @onclick="DeleteClicked">
-                <i class="bi bi-trash text-danger"></i>
-                <span id="cursorStyle" class="text-danger">Delete</span>
-            </div>
-            <hr/>
-             <div class="hstack gap-2 mb-2" id="cursorStyle" @onclick="AddVacationClicked">
-                <i class="bi bi-backpack3 text-success"></i>
-                <span id="cursorStyle" class="text-success">Add Vacation</span>
-            </div>
-            <div class="hstack gap-2 mb-2" id="cursorStyle" @onclick="AddOvertimeClicked">
-                <i class="bi bi-stopwatch text-danger"></i>
-                <span id="cursorStyle" class="text-danger">Add Overtime</span>
-            </div>
-            <div class="hstack gap-2 mb-2" id="cursorStyle" @onclick="AddHealthClicked">
-                <i class="bi bi-hospital text-warning"></i>
-                <span id="cursorStyle" class="text-warning">Add Health</span>
-            </div>
-            <div class="hstack gap-2 mb-2" id="cursorStyle" @onclick="AddSanctionClicked">
-                <i class="bi bi-x-octagon text-info"></i>
-                <span id="cursorStyle" class="text-info">Add Sanction</span>
-            </div>
-        </Content>
-    </DialogTemplates>
-</SfDialog>
+<MudDialog>  
+    <DialogContent>
+        <MudStack Spacing="1" AlignItems="AlignItems.Start">
+            <MudButton StartIcon="@Icons.Material.Outlined.RemoveRedEye" Color="Color.Info" Variant="Variant.Text" OnClick="ViewClicked">
+                View
+            </MudButton>
+            <MudButton StartIcon="@Icons.Material.Outlined.Edit" Color="Color.Primary" Variant="Variant.Text" OnClick="EditClicked">
+                Edit
+            </MudButton>
+            <MudButton StartIcon="@Icons.Material.Outlined.Delete" Color="Color.Error" Variant="Variant.Text" OnClick="DeleteClicked">
+                Delete
+            </MudButton>
 
-<style>
-    #cursorStyle {
-        cursor: pointer;
-    }
-</style>
+            <MudDivider />
+            <MudButton StartIcon="@Icons.Material.Outlined.Backpack" Color="Color.Success" Variant="Variant.Text" OnClick="AddVacationClicked">
+                Add Vacation
+            </MudButton>
+            <MudButton StartIcon="@Icons.Material.Outlined.PunchClock" Color="Color.Error" Variant="Variant.Text" OnClick="AddOvertimeClicked">
+                Add Overtime
+            </MudButton>
+            <MudButton StartIcon="@Icons.Material.Outlined.LocalHospital" Color="Color.Warning" Variant="Variant.Text" OnClick="AddHealthClicked">
+                Add Health
+            </MudButton>
+            <MudButton StartIcon="@Icons.Material.Outlined.Block" Color="Color.Info" Variant="Variant.Text" OnClick="AddSanctionClicked">
+                Add Sanction
+            </MudButton>
+        </MudStack>
+    </DialogContent>
+</MudDialog>
 
 @code {
-    SfDialog? OpenDialog;
-    private bool IsVisible { get; set; } = false;
 
+    [CascadingParameter] public IMudDialogInstance MudDialog { get; set; } = default!;
     [Parameter] public EventCallback HandleViewClicked { get; set; }
-    private async Task ViewClicked() => await HandleViewClicked.InvokeAsync();
-
     [Parameter] public EventCallback HandleEditClicked { get; set; }
-    private async Task EditClicked() => await HandleEditClicked.InvokeAsync();
-
     [Parameter] public EventCallback HandleDeleteClicked { get; set; }
-    private async Task DeleteClicked() => await HandleDeleteClicked.InvokeAsync();    
+    [Parameter] public EventCallback OnAddVacation { get; set; }
+    [Parameter] public EventCallback OnAddOvertime { get; set; }
+    [Parameter] public EventCallback OnAddHealth { get; set; }
+    [Parameter] public EventCallback OnAddSanction { get; set; }
 
-    [Parameter] public EventCallback HandleAddVacationClicked { get; set; }
-    private async Task AddVacationClicked() => await HandleAddVacationClicked.InvokeAsync();
-
-    [Parameter] public EventCallback HandleAddOvertimeClicked { get; set; }
-    private async Task AddOvertimeClicked() => await HandleAddOvertimeClicked.InvokeAsync();
-
-    [Parameter] public EventCallback HandleAddHealthClicked { get; set; }
-    private async Task AddHealthClicked() => await HandleAddHealthClicked.InvokeAsync();
-    
-    [Parameter] public EventCallback HandleAddSanctionClicked { get; set; }
-    private async Task AddSanctionClicked() => await HandleAddSanctionClicked.InvokeAsync();
-
-    public void OpenContextMenu()
-    {
-        IsVisible = true;
-        StateHasChanged();
+    private async Task ViewClicked()
+    {        
+        await HandleViewClicked.InvokeAsync();
+        MudDialog.Close(DialogResult.Ok(true));
     }
-
-    public void CloseContextMenu()
+    private async Task EditClicked()    
     {
-        IsVisible = false;
-        StateHasChanged();
+        await HandleEditClicked.InvokeAsync();
+        MudDialog.Close(DialogResult.Ok(true));
     }
+    private async Task DeleteClicked()
+    {
+        await HandleDeleteClicked.InvokeAsync();
+        MudDialog.Close(DialogResult.Ok(true));
+    }
+    private async Task AddVacationClicked() => await OnAddVacation.InvokeAsync();
+    private async Task AddOvertimeClicked() => await OnAddOvertime.InvokeAsync();
+    private async Task AddHealthClicked() => await OnAddHealth.InvokeAsync();
+    private async Task AddSanctionClicked() => await OnAddSanction.InvokeAsync();
 
 }

@@ -75,7 +75,7 @@
             { "Cities", Cities },
         };
 
-        var dialog = await DialogService.ShowAsync<BranchDialog>("Update Town", parameters);
+        var dialog = await DialogService.ShowAsync<TownDialog>("Update Town", parameters);
         var result = await dialog.Result;
 
         if (!result.Canceled)
