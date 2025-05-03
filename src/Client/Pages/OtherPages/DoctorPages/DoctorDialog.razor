@@ -1,58 +1,67 @@
-﻿<SfDialog Width="320px" IsModal="true" ShowCloseIcon="true" @bind-Visible="IsVisible">
-    <DialogEvents OnOpen="OpenDialog"></DialogEvents>
-    <DialogTemplates>
-        <Header>Add Employee Health Issue</Header>
-        <Content>
-            <EditForm Model="Doctor" Enhance OnSubmit="Save">
-                <div class="card-border-success">
-                    <div class="card-body">
-                        <div class="form-group">
-                            <label class="form-label">Employee Id</label>
-                            <input @bind="Doctor.EmployeeId" class="form-control" disabled />
-                        </div>
-                        <div class="form-group mt-2">
-                            <label class="form-label">Date</label>
-                            <InputDate @bind-Value="Doctor.Date" class="form-control" />
-                        </div>
-                        <div class="form-group mt-2">
-                            <label class="form-label">Medical Diagnose</label>
-                            <InputTextArea @bind-Value="Doctor.MedicalDiagnose" class="form-control" />
-                        </div>
-                        <div class="form-group mt-2">
-                            <label class="form-label">Recommendation</label>
-                            <InputTextArea @bind-Value="Doctor.MedicalRecommendation" class="form-control" />
-                        </div>
-                    </div>
-                </div>
-            </EditForm>
-        </Content>
-    </DialogTemplates>
+﻿<MudDialog>
+    <DialogContent>
+        <MudPaper Class="pa-4" Style="width: 320px;">
+            <MudForm @ref="_form">
+                <MudTextField Label="Employee Id"
+                              @bind-Value="Doctor.EmployeeId"
+                              Disabled="true"
+                              Variant="Variant.Text"
+                              Class="mt-4" />
 
-  @*   <DialogButtons>
-        <DialogButton Content="SAVE" Type="ButtonType.Submit" IsPrimary="true" OnClick="Save" />
-    </DialogButtons> *@
+                <MudTextField T="DateTime" Format="yyyy-MM-dd" Label="Date" InputType="InputType.Date" Class="mt-4"  @bind-Value="Doctor.Date" />
+               
+                <MudTextField Label="Medical Diagnose"
+                              @bind-Value="Doctor.MedicalDiagnose"
+                              Lines="3"
+                              Variant="Variant.Text"
+                              Class="mt-4" />
 
-</SfDialog>
+                <MudTextField Label="Recommendation"
+                              @bind-Value="Doctor.MedicalRecommendation"
+                              Lines="3"
+                              TextArea="true"
+                              Variant="Variant.Text"
+                              Class="mt-4" />
+                <MudStack Row Justify="Justify.FlexEnd" Class="mt-6">
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="Save">Save</MudButton>
+                    <MudButton OnClick="Cancel" Color="Color.Secondary" Variant="Variant.Outlined">Cancel</MudButton>
+                </MudStack>
+            </MudForm>
+        </MudPaper>
+    </DialogContent>
+</MudDialog>
 
 @code {
-    public string Title { get; set; } = "Add";
+    [CascadingParameter] IMudDialogInstance MudDialog { get; set; }
     [Parameter] public Doctor Doctor { get; set; } = new();
-    [Parameter] public EventCallback<Doctor> HandleSaveOperationEvent { get; set; }
+    [Inject] private ISnackbar Snackbar { get; set; } = default!;
 
     private bool IsVisible { get; set; } = false;
-    private async void Save() => await HandleSaveOperationEvent.InvokeAsync(Doctor);
+    private MudForm _form;
 
-    public void OpenDialog()
+    private async void Save()
     {
-        IsVisible = true;
-        StateHasChanged();
-    }
+        await _form.Validate();
 
-    public void CloseDialog()
-    {
-        IsVisible = false;
-        StateHasChanged();
-    }
+        if (_form.IsValid)
+        {
+            if (Doctor.Id > 0)
+            {
+                var result = await doctorService.Update(Doctor, Constants.DoctorBaseUrl);
+                Snackbar.Add(result.Message, result.Flag ? Severity.Success : Severity.Error);
+            }
+            else
+            {
+                var result = await doctorService.Insert(Doctor, Constants.DoctorBaseUrl);
+                Snackbar.Add(result.Message, result.Flag ? Severity.Success : Severity.Error);
+            }
 
-    public void ChangeTitle(string title) => Title = title;
+            MudDialog.Close(DialogResult.Ok(true));
+        }
+        else
+        {
+            Snackbar.Add("Please fill all required fields.", Severity.Warning);
+        }
+    }
+    private void Cancel() => MudDialog.Cancel();  
 }

@@ -13,9 +13,9 @@
                     <MudPaper Elevation="4" Class="p-4">
                         <MudStack Row AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Class="mb-4">
                             <MudButton Variant="Variant.Outlined"
-                                       Color="MudBlazor.Color.Success"
-                                       StartIcon="@Icons.Material.Filled.PersonAdd"
-                                       OnClick="ShowAddOrUpdateEmployeeButtonClicked">
+                            Color="MudBlazor.Color.Success"
+                            StartIcon="@Icons.Material.Filled.PersonAdd"
+                            OnClick="ShowAddOrUpdateEmployeeButtonClicked">
                                 Add Employee
                             </MudButton>
                             <MudStack Row Spacing="2">
@@ -31,20 +31,20 @@
                             </MudStack>
                         </MudStack>
                         <MudDataGrid Items="@Employees"
-                                     T="Employee"
-                                     MultiSelection="true"
-                                     Bordered="true"
-                                     Striped="true"
-                                     Hover="true"
-                                     Dense="true"
-                                     SortMode="SortMode.Multiple"
-                                     Filterable="true"
-                                     QuickFilter="@_quickFilter">
+                        T="Employee"
+                        MultiSelection="true"
+                        Bordered="true"
+                        Striped="true"
+                        Hover="true"
+                        Dense="true"
+                        SortMode="SortMode.Multiple"
+                        Filterable="true"
+                        QuickFilter="@_quickFilter">
                             <ToolBarContent>
                                 <MudText Typo="Typo.h6">Employees</MudText>
                                 <MudSpacer />
                                 <MudTextField @bind-Value="_searchString" Placeholder="Search" Adornment="Adornment.Start" Immediate="true"
-                                              AdornmentIcon="@Icons.Material.Filled.Search" IconSize="MudBlazor.Size.Medium" Class="mt-0"></MudTextField>
+                                AdornmentIcon="@Icons.Material.Filled.Search" IconSize="MudBlazor.Size.Medium" Class="mt-0"></MudTextField>
                             </ToolBarContent>
                             <Columns>
                                 <TemplateColumn T="Employee" Title="Employee Image">
@@ -62,7 +62,7 @@
                                 <TemplateColumn T="Employee" Title="Menu">
                                     <CellTemplate>
                                         <MudIconButton Icon="@Icons.Material.Filled.Menu"
-                                                       Color="Color.Primary" OnClick="@(() => OpenContextMenu(context.Item))" />
+                                        Color="Color.Primary" OnClick="@(() => OpenContextMenu(context.Item))" />
                                     </CellTemplate>
                                 </TemplateColumn>
                             </Columns>
@@ -74,29 +74,30 @@
     }
 }
 <AddOrUpdateEmployeePage @ref="addOrUpdateEmployeePage"
-                         Employee="Employee"
-                         ShowAddOrUpdateEmployee="ShowAddOrUpdatePage"
-                         NotifyParentFormCloseClicked="NotifyParentFormCloseClicked"
-                         Countries="DefaultCountries"
-                         Cities="DefaultCities"
-                         Towns="DefaultTowns"
-                         GeneralDepartments="DefaultGeneralDepartments"
-                         Departments="DefaultDepartments"
-                         Branches="DefaultBranches"                       
-                         HandleSaveEmployeeCLickedEvent="HandleSaveEmployeeCLickedEvent">
+Employee="Employee"
+ShowAddOrUpdateEmployee="ShowAddOrUpdatePage"
+NotifyParentFormCloseClicked="NotifyParentFormCloseClicked"
+Countries="DefaultCountries"
+Cities="DefaultCities"
+Towns="DefaultTowns"
+GeneralDepartments="DefaultGeneralDepartments"
+Departments="DefaultDepartments"
+Branches="DefaultBranches"                       
+HandleSaveEmployeeCLickedEvent="HandleSaveEmployeeCLickedEvent">
 </AddOrUpdateEmployeePage>
 
 <EmployeeDetailPage EmployeeDetails="Employee"
-                    ShowDetailsPage="ShowDetailsPage"
-                    HandleDetailsPageCloseBtnClicked="HandleDetailsPageCloseBtnClicked" />
+ShowDetailsPage="ShowDetailsPage"
+HandleDetailsPageCloseBtnClicked="HandleDetailsPageCloseBtnClicked" />
 @* <ContextMenu 
              HandleAddHealthClicked="AddHealthClicked"
              HandleAddOvertimeClicked="AddOvertimeClicked"
              HandleAddSanctionClicked="AddSanctionClicked"
              HandleAddVacationClicked="AddVacationClicked" /> *@
 <ContextMenu HandleViewClicked="HandleViewClicked"
-             HandleDeleteClicked="HandleDeleteClicked"
-             HandleEditClicked="HandleEditClicked"/>
+HandleDeleteClicked="DeleteClicked"
+HandleEditClicked="HandleEditClicked"
+HandleAddHealthClicked="AddHealthClicked" />
 
 @* <DoctorDialog @ref="doctorDialog" Doctor="Doctor" HandleSaveOperationEvent="SaveHealthEvent" />
 
@@ -143,7 +144,7 @@
         DefaultBranches = await branchService.GetAll(Constants.BranchBaseUrl);
 
     }
-    
+
     //Notify parent when Add or Update employee form closes
     private async Task NotifyParentFormCloseClicked()
     {
@@ -180,7 +181,7 @@
     public bool ShowAddOrUpdatePage { get; set; } = false;
     public Employee SelectedEmployee { get; set; } = new();   
     public bool ShowDetailsPage { get; set; } = false;
-   
+
     void ShowAddOrUpdateEmployeeButtonClicked()
     {
         ShowMainPage = false;
@@ -195,10 +196,10 @@
 
                 ["HandleViewClicked"] = EventCallback.Factory.Create(this, HandleViewClicked),
                 ["HandleEditClicked"] = EventCallback.Factory.Create(this, HandleEditClicked),
-                ["HandleDeleteClicked"] = EventCallback.Factory.Create(this, HandleDeleteClicked),
+                ["HandleDeleteClicked"] = EventCallback.Factory.Create(this, DeleteClicked),
                 ["OnAddVacation"] = EventCallback.Factory.Create(this, HandleAddVacationClicked),
                 ["OnAddOvertime"] = EventCallback.Factory.Create(this, HandleAddOvertimeClicked),
-                ["OnAddHealth"] = EventCallback.Factory.Create(this, HandleAddHealthClicked),
+                ["HandleAddHealthClicked"] = EventCallback.Factory.Create(this, AddHealthClicked),
                 ["OnAddSanction"] = EventCallback.Factory.Create(this, HandleAddSanctionClicked)
 
             };
@@ -219,37 +220,37 @@
     //Edit clicked
     private async Task HandleEditClicked() 
     {
-         //EmployeeGrouping1
-            addOrUpdateEmployeePage!.Employee.Id = SelectedEmployee.Id;
-            addOrUpdateEmployeePage!.EmployeeGroup1.Name = SelectedEmployee.Name!;
-            addOrUpdateEmployeePage!.EmployeeGroup1.TelephoneNumber = SelectedEmployee.TelephoneNumber!;
-            addOrUpdateEmployeePage!.EmployeeGroup1.FileNumber = SelectedEmployee.FileNumber!;
-            addOrUpdateEmployeePage!.EmployeeGroup1.Address = SelectedEmployee.Address!;
-            addOrUpdateEmployeePage!.EmployeeGroup1.Photo = SelectedEmployee.Photo!;
-            addOrUpdateEmployeePage!.EmployeeGroup1.CivilId = SelectedEmployee.CivilId;
+        //EmployeeGrouping1
+        addOrUpdateEmployeePage!.Employee.Id = SelectedEmployee.Id;
+        addOrUpdateEmployeePage!.EmployeeGroup1.Name = SelectedEmployee.Name!;
+        addOrUpdateEmployeePage!.EmployeeGroup1.TelephoneNumber = SelectedEmployee.TelephoneNumber!;
+        addOrUpdateEmployeePage!.EmployeeGroup1.FileNumber = SelectedEmployee.FileNumber!;
+        addOrUpdateEmployeePage!.EmployeeGroup1.Address = SelectedEmployee.Address!;
+        addOrUpdateEmployeePage!.EmployeeGroup1.Photo = SelectedEmployee.Photo!;
+        addOrUpdateEmployeePage!.EmployeeGroup1.CivilId = SelectedEmployee.CivilId;
 
-            //EmployeeGrouping2
-            addOrUpdateEmployeePage!.EmployeeGroup2.JobName = SelectedEmployee.JobName!;
-            addOrUpdateEmployeePage!.EmployeeGroup2.Other = SelectedEmployee.Other;
+        //EmployeeGrouping2
+        addOrUpdateEmployeePage!.EmployeeGroup2.JobName = SelectedEmployee.JobName!;
+        addOrUpdateEmployeePage!.EmployeeGroup2.Other = SelectedEmployee.Other;
 
-            //General Department / Department / Branch
-            addOrUpdateEmployeePage!.GeneralDepartment = SelectedEmployee.Branch!.Department!.GeneralDepartment!.Id!;
-            addOrUpdateEmployeePage!.Department = SelectedEmployee.Branch!.Department!.Id!;
-            addOrUpdateEmployeePage!.Branch = SelectedEmployee.Branch!.Id!;
+        //General Department / Department / Branch
+        addOrUpdateEmployeePage!.GeneralDepartment = SelectedEmployee.Branch!.Department!.GeneralDepartment!.Id!;
+        addOrUpdateEmployeePage!.Department = SelectedEmployee.Branch!.Department!.Id!;
+        addOrUpdateEmployeePage!.Branch = SelectedEmployee.Branch!.Id!;
 
-            //Country / City / Town
-            addOrUpdateEmployeePage!.Country = SelectedEmployee.Town!.City!.Country!.Id!;
-            addOrUpdateEmployeePage!.City = SelectedEmployee.Town!.City!.Id!;
-            addOrUpdateEmployeePage!.Town = SelectedEmployee.Town!.Id!;
+        //Country / City / Town
+        addOrUpdateEmployeePage!.Country = SelectedEmployee.Town!.City!.Country!.Id!;
+        addOrUpdateEmployeePage!.City = SelectedEmployee.Town!.City!.Id!;
+        addOrUpdateEmployeePage!.Town = SelectedEmployee.Town!.Id!;
 
-            SelectedEmployee = new();
-            ShowAddOrUpdatePage = true;
-            ShowMainPage = false;
+        SelectedEmployee = new();
+        ShowAddOrUpdatePage = true;
+        ShowMainPage = false;
     }
     //Delete clicked
-    private async Task HandleDeleteClicked() 
+    private async Task DeleteClicked() 
     {       
-         var parameters = new DialogParameters
+        var parameters = new DialogParameters
         {
             { "ContentText", $"Are you sure you want to delete {SelectedEmployee.Name}?" },
             { "ConfirmButtonText", "Delete" },
@@ -280,7 +281,27 @@
     }
     private Task HandleAddVacationClicked() => Task.CompletedTask;
     private Task HandleAddOvertimeClicked() => Task.CompletedTask;
-    private Task HandleAddHealthClicked() => Task.CompletedTask;
+    //Add Health clicked
+    Doctor Doctor = new();
+    private async Task AddHealthClicked()
+    {
+        Doctor.EmployeeId = SelectedEmployee.Id;
+        var parameters = new DialogParameters
+        {
+            { "Doctor", Doctor },
+        };
+
+        var dialog = await DialogService.ShowAsync<DoctorDialog>("Add Employee Health Issue", parameters);
+        var result = await dialog.Result;
+        if (!result.Canceled)
+        {           
+            SelectedEmployee = new();
+            Doctor = new();
+            await LoadEmployees();
+        }
+    
+    }
+  
     private Task HandleAddSanctionClicked() => Task.CompletedTask;
 
       //Details employee close btn clicked
@@ -332,13 +353,13 @@
             {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
             });
-                await JS.InvokeVoidAsync("pdfUtils.generateEmployeePdf", json);
+        await JS.InvokeVoidAsync("pdfUtils.generateEmployeePdf", json);
         }
 
         private async Task ExportToExcel()
         {
             var json = JsonSerializer.Serialize(Employees);
-            await JS.InvokeVoidAsync("excelUtils.exportToExcel", json);
+            await JS.InvokeVoidAsync("excelUtils.exportEmployeeToExcel", json);
         }
 
         private async Task PrintGrid()
@@ -352,31 +373,7 @@
 
     private async Task GetVacationTypes() => VacationTypes = await vacationTypeService.GetAll(Constants.VacationTypeBaseUrl);
 
-    //Add Health clicked
-    DoctorDialog doctorDialog;
-    Doctor Doctor = new();
-    private void AddHealthClicked()
-    {
-        Doctor.EmployeeId = SelectedEmployee.Id;
-        contextMenu!.CloseContextMenu();
-        doctorDialog.OpenDialog();
-
-        }
-
-    //Save Health Handler
-    async Task SaveHealthEvent(Doctor item)
-    {
-        item.EmployeeId = SelectedEmployee.Id;
-        var (flag, message) = await doctorService.Insert(item, Constants.DoctorBaseUrl);
-        var response = await DisplayMessage(flag, message);
-        if (response)
-        {
-            SelectedEmployee = new();
-            Doctor = new();
-            doctorDialog!.CloseDialog();
-
-            }
-        }
+   
 
     //Add Overtime clicked
     OvertimeDialog? overtimeDialog;

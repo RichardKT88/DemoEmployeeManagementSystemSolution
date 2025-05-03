@@ -1,54 +1,64 @@
-﻿<div class="container-fluid">
-    <div class="row">
-        <div class="col-lg-2 cursorStyle">
-            <div class="card border-primary">
-                <div class="card-reader"><i class="bi bi-people text-primary"></i> Employees
-                    <span class="badge bg-primary fs-6"> @Employees.Count</span>
-                </div>
-            </div>
-        </div>
-        <div class="col-lg-2 cursorStyle">
-            <div class="card border-success" @onclick="VacationClicked">
-                <div class="card-reader"><i class="bi bi-backpack3 text-success"></i> Vacation
-                    <span class="badge bg-success fs-6"> @Vacations.Count</span>
-                </div>
-            </div>
-        </div>
-        <div class="col-lg-2 cursorStyle">
-            <div class="card border-danger" @onclick="OvertimeClicked">
-                <div class="card-reader"><i class="bi bi-stopwatch text-danger"></i> Overtime
-                    <span class="badge bg-danger fs-6"> @Overtimes.Count</span>
-                </div>
-            </div>
-        </div>
-        <div class="col-lg-2 cursorStyle">
-            <div class="card border-warning" @onclick="HealthClicked">
-                <div class="card-reader"><i class="bi bi-hospital text-warning"></i> Health
-                    <span class="badge bg-warning fs-6"> @Health.Count</span>
-                </div>
-            </div>
-        </div>
-        <div class="col-lg-2 cursorStyle">
-            <div class="card border-info" @onclick="SanctionClicked">
-                <div class="card-reader"><i class="bi bi-x-octagon text-info"></i> Sanctions
-                    <span class="badge bg-info fs-6"> @Sanctions.Count</span>
-                </div>
-            </div>
-        </div>
-        <div class="col-lg-2 cursorStyle">
-            <div class="card border-dark">
-                <div class="card-reader"><i class="bi bi-slack text-dark"></i> Departments
-                    <span class="badge bg-dark fs-6"> @Departments.Count</span>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-<style>
-    .cursorStyle{
-        cursor: pointer;
-    }
-</style>
+﻿<MudGrid>
+    <MudItem xs="12" sm="6" md="2">
+        <MudButton Variant="Variant.Outlined" Color="Color.Primary" FullWidth="true" Class="interactive-card d-flex align-items-center justify-start">
+            <MudIcon Icon="@Icons.Material.Filled.Group" Color="Color.Primary" Class="mr-1" />
+            <MudText Typo="Typo.subtitle1" Class="d-flex align-items-center">
+                Employees
+                <MudBadge Color="Color.Primary" Content="@Employees.Count" Class="ml-3" Style="vertical-align: middle;" />
+            </MudText>
+        </MudButton>
+    </MudItem>
+
+    <MudItem xs="12" sm="6" md="2">
+        <MudButton Variant="Variant.Outlined" Color="Color.Success" FullWidth="true" Class="interactive-card d-flex align-items-center justify-start" OnClick="VacationClicked">
+            <MudIcon Icon="@Icons.Material.Filled.BeachAccess" Color="Color.Success" Class="mr-1" />
+            <MudText Typo="Typo.subtitle1" Class="d-flex align-items-center">
+                Vacation
+                <MudBadge Color="Color.Success" Content="@Vacations.Count" Class="ml-3" Style="vertical-align: middle;" />
+            </MudText>
+        </MudButton>
+    </MudItem>
+
+    <MudItem xs="12" sm="6" md="2">
+        <MudButton Variant="Variant.Outlined" Color="Color.Error" FullWidth="true" Class="interactive-card d-flex align-items-center justify-start" OnClick="OvertimeClicked">
+            <MudIcon Icon="@Icons.Material.Filled.AccessTime" Color="Color.Error" Class="mr-1" />
+            <MudText Typo="Typo.subtitle1" Class="d-flex align-items-center">
+                Overtime
+                <MudBadge Color="Color.Error" Content="@Overtimes.Count" Class="ml-3" Style="vertical-align: middle;" />
+            </MudText>
+        </MudButton>
+    </MudItem>
+
+    <MudItem xs="12" sm="6" md="2">
+        <MudButton Variant="Variant.Outlined" Color="Color.Warning" FullWidth="true" Class="interactive-card d-flex align-items-center justify-start" OnClick="HealthClicked">
+            <MudIcon Icon="@Icons.Material.Filled.LocalHospital" Color="Color.Warning" Class="mr-1" />
+            <MudText Typo="Typo.subtitle1" Class="d-flex align-items-center">
+                Health
+                <MudBadge Color="Color.Warning" Content="@Health.Count" Class="ml-3" Style="vertical-align: middle;" />
+            </MudText>
+        </MudButton>
+    </MudItem>
+
+    <MudItem xs="12" sm="6" md="2">
+        <MudButton Variant="Variant.Outlined" Color="Color.Info" FullWidth="true" Class="interactive-card d-flex align-items-center justify-start" OnClick="SanctionClicked">
+            <MudIcon Icon="@Icons.Material.Filled.Block" Color="Color.Info" Class="mr-1" />
+            <MudText Typo="Typo.subtitle1" Class="d-flex align-items-center">
+                Sanctions
+                <MudBadge Color="Color.Info" Content="@Sanctions.Count" Class="ml-3" Style="vertical-align: middle;" />
+            </MudText>
+        </MudButton>
+    </MudItem>
+
+    <MudItem xs="12" sm="6" md="2">
+        <MudButton Variant="Variant.Outlined" Color="Color.Dark" FullWidth="true" Class="interactive-card d-flex align-items-center justify-start">
+            <MudIcon Icon="@Icons.Material.Filled.Apartment" Color="Color.Dark" Class="mr-1" />
+            <MudText Typo="Typo.subtitle1" Class="d-flex align-items-center">
+                Departments
+                <MudBadge Color="Color.Dark" Content="@Departments.Count" Class="ml-3" Style="vertical-align: middle;" />
+            </MudText>
+        </MudButton>
+    </MudItem>
+</MudGrid>
 @code {
     public List<Employee> Employees { get; set; } = new();
     public List<Department> Departments { get; set; } = new();

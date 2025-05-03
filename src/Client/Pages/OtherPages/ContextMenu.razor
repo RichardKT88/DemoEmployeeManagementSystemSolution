@@ -36,7 +36,7 @@
     [Parameter] public EventCallback HandleDeleteClicked { get; set; }
     [Parameter] public EventCallback OnAddVacation { get; set; }
     [Parameter] public EventCallback OnAddOvertime { get; set; }
-    [Parameter] public EventCallback OnAddHealth { get; set; }
+    [Parameter] public EventCallback HandleAddHealthClicked { get; set; }
     [Parameter] public EventCallback OnAddSanction { get; set; }
 
     private async Task ViewClicked()
@@ -56,7 +56,11 @@
     }
     private async Task AddVacationClicked() => await OnAddVacation.InvokeAsync();
     private async Task AddOvertimeClicked() => await OnAddOvertime.InvokeAsync();
-    private async Task AddHealthClicked() => await OnAddHealth.InvokeAsync();
+    private async Task AddHealthClicked()
+    {
+        await HandleAddHealthClicked.InvokeAsync();
+        MudDialog.Close(DialogResult.Ok(true));
+    }
     private async Task AddSanctionClicked() => await OnAddSanction.InvokeAsync();
 
 }

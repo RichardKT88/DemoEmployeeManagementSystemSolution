@@ -35,9 +35,43 @@ window.pdfUtils = {
         };
 
         pdfMake.createPdf(docDefinition).open();
+    },
+    generateDoctorPdf: function (doctorJson) {
+        const doctors = JSON.parse(doctorJson);
+
+        const body = [
+            ['ID', 'Medical Diagnose', 'Recommendation', 'Date']
+        ];
+
+        doctors.forEach(doc => {
+            body.push([
+                doc.employeeId,
+                doc.medicalDiagnose,
+                doc.medicalRecommendation,
+                doc.date,
+
+            ]);
+        });
+
+        const docDefinition = {
+            content: [
+                { text: 'Doctor List', style: 'header' },
+                {
+                    table: {
+                        headerRows: 1,
+                        widths: ['auto', 'auto', 'auto', 'auto'],
+                        body: body
+                    }
+                }
+            ],
+            styles: {
+                header: { fontSize: 18, bold: true, margin: [0, 0, 0, 10] }
+            }
+        };
+
+        pdfMake.createPdf(docDefinition).open();
     }
 };
-
 window.printGrid = () => {
     window.print();
 };
