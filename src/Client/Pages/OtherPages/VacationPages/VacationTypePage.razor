@@ -1,77 +1,40 @@
 ﻿@implements IDisposable
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
 @if (allState.ShowVacationType)
 {
-    <div class="container mt-5">
-        <div class="row">
-            <div class="col-lg-12">
-                <div class="card">
-                    <div class="card-header">
-                        <h4 class="float-start">Vacation Types</h4>
-                        <button class="btn btn-outline-success float-end" @onclick="OpenDialog">
-                            <i class="bi bi-plus-circle-dotted"></i> Add Type
-                        </button>
-                    </div>
-                    <div class="card-header" style="max-height:580px; overflow-x:hidden; overflow-y:scroll;">
-                        <div class="card-body">
-                            <table class="table table-striped">
-                                <thead>
-                                    <tr>
-                                        <th scope="col">#</th>
-                                        <th scope="col">Id</th>
-                                        <th scope="col">Type</th>
-                                        <th scope="col">Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @if (Types is not null)
-                                    {
-                                        int count = 1;
-                                        foreach (var item in Types)
-                                        {
-                                            <tr>
-                                                <th scope="row">@count</th>
-                                                <td>@item.Id</td>
-                                                <td>@item.Name</td>
-                                                <td>
-                                                    <i class="bi bi-pencil text-info" id="cursorStyle" @onclick="() => EditClicked(item)"></i>
-                                                    <i class="bi bi-trash text-danger" id="cursorStyle" @onclick="() => DeleteClicked(item)"></i>
-                                                </td>
-                                            </tr>
-                                            count++;
-                                        }
-                                    }
-                                    else
-                                    {
-                                        <tr>
-                                            <td colspan="4">
-                                                <div class="alert alert-info text-center">
-                                                    No Type added yet!
-
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+   
+    <MudContainer MaxWidth="MaxWidth.False" Class="mt-8">
+        <MudPaper Class="p-4 mt-5 mx-auto" Style="width:1200px;" Elevation="6">
+            <MudStack Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="mb-4">
+                <MudText Typo="Typo.h5">Vacation Types</MudText>
+                <MudButton Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Filled.AddCircleOutline" OnClick="AddVacationType">
+                    Add Type
+                </MudButton>
+            </MudStack>
+            <MudTable Items="Types" Hover="true" Bordered="true" Striped="true">
+                <HeaderContent>
+                    <MudTh>Id</MudTh>
+                    <MudTh>Type</MudTh>
+                    <MudTh>Action</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd>@context.Id</MudTd>
+                    <MudTd>@context.Name</MudTd>
+                    <MudTd>
+                        <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Info" OnClick="() => EditVacationType(context)" />
+                        <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="() => DeleteVacationType(context)" />
+                    </MudTd>
+                </RowTemplate>
+                <NoRecordsContent>
+                    <MudText Class="text-center my-4" Color="Color.Info">No Type added yet!</MudText>
+                </NoRecordsContent>
+            </MudTable>
+        </MudPaper>
+    </MudContainer>
 }
-<style>
-    .cursorStyle {
-        cursor: pointer;
-    }
-</style>
-
-<VacationTypeDialog @ref="vacationTypeDialog"
-                    HandleSaveOperationEvent="HandleSaveOperationEvent"
-                    VacationType="VacationType" />
 
 @code {
-    VacationTypeDialog? vacationTypeDialog;
     VacationType VacationType = new();
     public string Title { get; set; } = "Add";
     public List<VacationType> Types { get; set; } = new();
@@ -84,60 +47,60 @@
 
     private async Task GetTypes() => Types = await vacationTypeService.GetAll(Constants.VacationTypeBaseUrl);
 
-    void OpenDialog() => vacationTypeDialog?.OpenDialog();
-
-    //Add or Update
-    private async Task HandleSaveOperationEvent(VacationType item)
+    private async Task AddVacationType()
     {
-        bool successCheck = false;
-        if (item.Id > 0)
+        var parameters = new DialogParameters
         {
-            var result = await vacationTypeService.Update(item, Constants.VacationTypeBaseUrl);
-            successCheck = await DisplayMessage(result.Flag, result.Message);
-        }
-        else
-        {
-            var response = await vacationTypeService.Insert(item, Constants.VacationTypeBaseUrl);
-            successCheck = await DisplayMessage(response.Flag, response.Message);
-        }
-        if (successCheck)
-        {
-            VacationType = new();
+            { "VacationType", new VacationType() },
+        };
+
+        var dialog = await DialogService.ShowAsync<VacationTypeDialog>("Add Vacation Type", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
             await GetTypes();
-            vacationTypeDialog?.ChangeTitle("Add");
-        }
     }
-
-    //Edit
-    private void EditClicked(VacationType item)
+    private async Task EditVacationType(VacationType vacationType)
     {
-        vacationTypeDialog?.ChangeTitle("Update");
-        VacationType = item;
-        OpenDialog();
-    }
+        var parameters = new DialogParameters
+        {
+            { "VacationType", vacationType },
+        };
 
-    // Delete
-    private async Task DeleteClicked(VacationType item)
-    {
-        bool confirm = await dialogService.ConfirmAsync($"Are you sure you wanna delete {item.Name}?", "Confirm delete");
-        if (!confirm) return;
+        var dialog = await DialogService.ShowAsync<VacationTypeDialog>("Update Vacation Type", parameters);
+        var result = await dialog.Result;
 
-        var response = await vacationTypeService.DeleteById(item.Id, Constants.VacationTypeBaseUrl);
-        if (await DisplayMessage(response.Flag, response.Message))
+        if (!result.Canceled)
             await GetTypes();
     }
 
-    private async Task<bool> DisplayMessage(bool flag, string message)
+    private async Task DeleteVacationType(VacationType vacationType)
     {
-        if (flag)
+        var parameters = new DialogParameters
         {
-            await dialogService.AlertAsync(message, "Success Operation");
-            return true;
-        }
-        else
+            { "ContentText", $"Are you sure you want to delete {vacationType.Name}?" },
+            { "ConfirmButtonText", "Delete" },
+            { "CancelButtonText", "Cancel" },
+            { "Color", Color.Error }
+        };
+
+        var options = new MudBlazor.DialogOptions
+            {
+                CloseButton = true,
+                MaxWidth = MaxWidth.ExtraSmall,
+                FullWidth = true
+            };
+
+        var dialog = await DialogService.ShowAsync<ConfirmDialog>("Confirm Delete", parameters, options);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
         {
-            await dialogService.AlertAsync(message, "Alert");
-            return false;
+            var response = await vacationTypeService.DeleteById(vacationType.Id, Constants.VacationTypeBaseUrl);
+            Snackbar.Add(response.Message, response.Flag ? Severity.Success : Severity.Error);
+
+            if (response.Flag)
+                await GetTypes();
         }
     }
 

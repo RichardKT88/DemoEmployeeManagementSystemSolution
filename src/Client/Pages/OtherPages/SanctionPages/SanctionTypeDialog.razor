@@ -1,48 +1,46 @@
-﻿<SfDialog Width="350px" IsModal="true" ShowCloseIcon="true" @bind-Visible="IsVisible">
-    <DialogEvents OnOpen="OpenDialog"></DialogEvents>
-    <DialogTemplates>
-        <Header>@Title Sanction Type</Header>
-        <Content>
-            <EditForm Model="SanctionType" Enhance OnSubmit="Save">
-                <div class="card-border-success">
-                    <div class="card-body">
-                        <div class="form-group">
-                            <label class="form-label">Name</label>
-                            <InputText @bind-Value="SanctionType.Name" class="form-control" />
-                        </div>
-                    </div>
-                </div>
-            </EditForm>
-        </Content>
-    </DialogTemplates>
-
-   @*  <DialogButtons>
-        <DialogButton Content="SAVE" Type="ButtonType.Submit" IsPrimary="true" OnClick="Save" />
-    </DialogButtons> *@
-
-</SfDialog>
-
+﻿<MudDialog>
+    <DialogContent>
+        <MudForm @ref="_form" Model="SanctionType">
+            <MudPaper Class="p-4">
+                <MudTextField Label="Name" @bind-Value="SanctionType.Name" Required="true" For="@(() => SanctionType.Name)" />
+                <MudStack Row Justify="Justify.FlexEnd" Class="mt-6">
+                    <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="Save">Save</MudButton>
+                    <MudButton Color="Color.Secondary" Variant="Variant.Outlined" OnClick="Cancel">Cancel</MudButton>
+                </MudStack>
+            </MudPaper>
+        </MudForm>
+    </DialogContent>
+</MudDialog>
 @code {
     [Parameter] public SanctionType SanctionType { get; set; } = new();
-    [Parameter] public EventCallback<SanctionType> HandleSaveOperationEvent { get; set; }
-    private bool IsVisible { get; set; } = false;
-    public string Title { get; set; } = "Add";
-    public void OpenDialog()
-    {
-        IsVisible = true;
-        StateHasChanged();
-    }
+    [CascadingParameter] IMudDialogInstance MudDialog { get; set; } = default!;
+    [Inject] private ISnackbar Snackbar { get; set; } = default!;
+    private MudForm _form = default!;
 
-    async void Save()
+    private async void Save()
     {
-        if (string.IsNullOrEmpty(SanctionType.Name))
-            await dialogService.AlertAsync("You need to provide Sanction Type name.", "Alert!");
+        await _form.Validate();
+
+        if (_form.IsValid)
+        {
+            if (SanctionType.Id > 0)
+            {
+                var result = await sanctionTypeService.Update(SanctionType, Constants.SanctionTypeBaseUrl);
+                Snackbar.Add(result.Message, result.Flag ? Severity.Success : Severity.Error);
+            }
+            else
+            {
+                var result = await sanctionTypeService.Insert(SanctionType, Constants.SanctionTypeBaseUrl);
+                Snackbar.Add(result.Message, result.Flag ? Severity.Success : Severity.Error);
+            }
+
+            MudDialog.Close(DialogResult.Ok(true));
+        }
         else
-            await HandleSaveOperationEvent.InvokeAsync(SanctionType);
+        {
+            Snackbar.Add("Please fill all required fields.", Severity.Warning);
+        }
     }
 
-    public void ChangeTitle(string title)
-    {
-        Title = title;
-    }
+    private void Cancel() => MudDialog.Cancel();
 }

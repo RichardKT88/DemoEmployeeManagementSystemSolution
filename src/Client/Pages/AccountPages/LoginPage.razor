@@ -2,36 +2,38 @@
 @layout AuthenticationLayout
 
 <div class="d-flex justify-center align-center" style="min-height: 100vh;">
-    <MudPaper Elevation="8" Class="pa-6" Style="width: 400px; background-color: #f5f5f5;">
-            <MudForm @ref="form">
-                <div class="text-center mb-4">
-                    <MudText Typo="Typo.h5" GutterBottom="true">Login</MudText>
+    <MudPaper Elevation="6" Class="pa-6 rounded-lg" Style="width: 380px; background-color: #f5f5f5; color: black">
+        <MudForm @ref="form">
+            <MudStack Spacing="3">
+
+                <MudStack AlignItems="AlignItems.Center">
+                    <MudText Typo="Typo.h4" GutterBottom="true">Login</MudText>
                     <MudAvatar Size="Size.Large" Class="mx-auto">
                         <MudImage Src="../images/companylogos/netcode.jpg"></MudImage>
                     </MudAvatar>
-                </div>
+                </MudStack>
 
-                <MudTextField @bind-Value="User.Email" Variant="Variant.Outlined" Label="Email"  For="@(() => User.Email)" Required="true" FullWidth="true" />
-                <MudTextField @bind-Value="User.Password" Variant="Variant.Outlined" Label="Password" For="@(() => User.Password)" InputType="InputType.Password" Required="true" FullWidth="true" />
+                <MudTextField @bind-Value="User.Email" Variant="Variant.Filled" Label="Email"
+                              For="@(() => User.Email)" Required="true" FullWidth="true" />
+                <MudTextField @bind-Value="User.Password" Variant="Variant.Filled" Label="Password"
+                              For="@(() => User.Password)" InputType="InputType.Password" Required="true" FullWidth="true" />
 
                 @if (ShowLoadingButton)
                 {
-                    <MudButton Disabled="true" Variant="Variant.Filled" Color="Color.Primary" FullWidth="true">
-                        <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="me-2" />
-                        Loading...
-                    </MudButton>
+                    <ButtonLoadingSpinner></ButtonLoadingSpinner>
                 }
                 else
                 {
-                    <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" OnClick="HandleLogin">
+                    <MudButton Variant="Variant.Filled" Style="background-color: #0d6efd; color: white;" FullWidth="true" OnClick="HandleLogin">
                         Login
                     </MudButton>
                 }
 
                 <MudText Class="mt-4" Color="Color.Error" Typo="Typo.caption" Align="Align.Center">
-                    Don't have an account? <MudLink Href="/identity/account/register">Sign Up</MudLink>
+                    Don't have an account? <MudLink Underline="Underline.Always" Href="/identity/account/register">Sign Up</MudLink>
                 </MudText>
-            </MudForm>     
+            </MudStack>
+        </MudForm>
     </MudPaper>
 </div>
 
@@ -70,7 +72,7 @@
         }
 
         ShowLoadingButton = false;
-    }  
+    }
 
     private async Task CheckUserAuthentication()
     {
@@ -78,6 +80,6 @@
         bool isUserAuthenticated = user.Identity!.IsAuthenticated;
         if (isUserAuthenticated)
             NavManager.NavigateTo("/home/dashboard");
-       
+
     }
 }
