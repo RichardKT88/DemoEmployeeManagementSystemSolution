@@ -94,9 +94,9 @@ HandleDetailsPageCloseBtnClicked="HandleDetailsPageCloseBtnClicked" />
              HandleAddOvertimeClicked="AddOvertimeClicked"
              HandleAddSanctionClicked="AddSanctionClicked"
              HandleAddVacationClicked="AddVacationClicked" /> *@
-<ContextMenu HandleViewClicked="HandleViewClicked"
+<ContextMenu HandleViewClicked="ViewClicked"
 HandleDeleteClicked="DeleteClicked"
-HandleEditClicked="HandleEditClicked"
+HandleEditClicked="EditClicked"
 HandleAddHealthClicked="AddHealthClicked" />
 
 @* <DoctorDialog @ref="doctorDialog" Doctor="Doctor" HandleSaveOperationEvent="SaveHealthEvent" />
@@ -194,8 +194,8 @@ HandleAddHealthClicked="AddHealthClicked" />
         var parameters = new DialogParameters
             {
 
-                ["HandleViewClicked"] = EventCallback.Factory.Create(this, HandleViewClicked),
-                ["HandleEditClicked"] = EventCallback.Factory.Create(this, HandleEditClicked),
+                ["HandleViewClicked"] = EventCallback.Factory.Create(this, ViewClicked),
+                ["HandleEditClicked"] = EventCallback.Factory.Create(this, EditClicked),
                 ["HandleDeleteClicked"] = EventCallback.Factory.Create(this, DeleteClicked),
                 ["OnAddVacation"] = EventCallback.Factory.Create(this, HandleAddVacationClicked),
                 ["OnAddOvertime"] = EventCallback.Factory.Create(this, HandleAddOvertimeClicked),
@@ -210,7 +210,7 @@ HandleAddHealthClicked="AddHealthClicked" />
     }
 
     //View clicked
-    private async Task HandleViewClicked()
+    private async Task ViewClicked()
     {
         Employee = SelectedEmployee;
         ShowDetailsPage = true;
@@ -218,7 +218,7 @@ HandleAddHealthClicked="AddHealthClicked" />
         SelectedEmployee = new();
     }
     //Edit clicked
-    private async Task HandleEditClicked() 
+    private async Task EditClicked() 
     {
         //EmployeeGrouping1
         addOrUpdateEmployeePage!.Employee.Id = SelectedEmployee.Id;
