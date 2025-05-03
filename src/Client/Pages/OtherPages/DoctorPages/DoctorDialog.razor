@@ -36,7 +36,6 @@
     [Parameter] public Doctor Doctor { get; set; } = new();
     [Inject] private ISnackbar Snackbar { get; set; } = default!;
 
-    private bool IsVisible { get; set; } = false;
     private MudForm _form;
 
     private async void Save()
