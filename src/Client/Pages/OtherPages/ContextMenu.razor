@@ -34,10 +34,10 @@
     [Parameter] public EventCallback HandleViewClicked { get; set; }
     [Parameter] public EventCallback HandleEditClicked { get; set; }
     [Parameter] public EventCallback HandleDeleteClicked { get; set; }
-    [Parameter] public EventCallback OnAddVacation { get; set; }
-    [Parameter] public EventCallback OnAddOvertime { get; set; }
+    [Parameter] public EventCallback HandleAddVacationClicked { get; set; }
+    [Parameter] public EventCallback HandleAddOvertimeClicked { get; set; }
     [Parameter] public EventCallback HandleAddHealthClicked { get; set; }
-    [Parameter] public EventCallback OnAddSanction { get; set; }
+    [Parameter] public EventCallback HandleAddSanctionClicked { get; set; }
 
     private async Task ViewClicked()
     {        
@@ -54,13 +54,25 @@
         await HandleDeleteClicked.InvokeAsync();
         MudDialog.Close(DialogResult.Ok(true));
     }
-    private async Task AddVacationClicked() => await OnAddVacation.InvokeAsync();
-    private async Task AddOvertimeClicked() => await OnAddOvertime.InvokeAsync();
+    private async Task AddVacationClicked()    
+    {
+        await HandleAddVacationClicked.InvokeAsync();
+        MudDialog.Close(DialogResult.Ok(true));
+    }
+    private async Task AddOvertimeClicked()
+    {
+        await HandleAddOvertimeClicked.InvokeAsync();
+        MudDialog.Close(DialogResult.Ok(true));
+    }
     private async Task AddHealthClicked()
     {
         await HandleAddHealthClicked.InvokeAsync();
         MudDialog.Close(DialogResult.Ok(true));
     }
-    private async Task AddSanctionClicked() => await OnAddSanction.InvokeAsync();
+    private async Task AddSanctionClicked()
+    {        
+        await HandleAddSanctionClicked.InvokeAsync();
+        MudDialog.Close(DialogResult.Ok(true));
+    }
 
 }

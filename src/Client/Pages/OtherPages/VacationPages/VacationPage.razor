@@ -1,67 +1,69 @@
 ﻿@implements IDisposable
+@inject IJSRuntime JS
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+@using System.Text.Json
 @if (allState.ShowVacation)
 {
-    <div class="container mt-5">
-        <div class="row">
-            <div class="col-lg-12">
-                <div class="card border-warning shadow-lg">
-                    <div class="card-header">
-                        <h4 class="float-start">Manage Employees Vacation</h4>
-                    </div>
-                    <div class="card-header" style="max-height:580px; overflow-x:hidden; overflow-y:scroll">
-                        <div class="card-body">
-                            @{
-                                var tool = (new List<string>() { "Search", "ExcelExport", "PdfExport", "Print" });
-                            }
-                            <SfGrid DataSource="@Vacations" AllowPaging="true" AllowSorting="true" Toolbar=@tool AllowExcelExport="true" @ref="DefaultGrid" AllowPdfExport="true">
-                                <GridPageSettings PageSize="5"></GridPageSettings>
-                                <GridEvents OnToolbarClick="ToolbarClickHandler" TValue="Vacation"></GridEvents>
-                                <GridColumns>
-                                    <GridColumn Field="@nameof(Vacation.EmployeeId)" HeaderText="ID"></GridColumn>
-                                    <GridColumn HeaderText="Type">
-                                        <Template>
-                                            @{
-                                                var item = (context as Vacation);
-                                                <div>
-                                                    @item!.VacationType!.Name
-                                                </div>
-                                            }
-                                        </Template>
-                                    </GridColumn>
-                                    <GridColumn Field="@nameof(Vacation.StartDate)" HeaderText="Start Date"></GridColumn>
-                                    <GridColumn Field="@nameof(Vacation.EndDate)" HeaderText="End Date"></GridColumn>
-                                    <GridColumn Field="@nameof(Vacation.NumberOfDays)" HeaderText="Number Of Days"></GridColumn>
-                                    <GridColumn HeaderText="Action">
-                                        <Template>
-                                            @{
-                                                var employee = (context as Vacation);
-                                                <div>
-                                                    <i class="bi bi-pencil text-info" id="cursorStyle" @onclick="()=>EditClicked(employee!)"></i>
-                                                    <i class="bi bi-trash text-danger" id="cursorStyle" @onclick="()=>DeleteClicked(employee!)"></i>
-                                                </div>
-                                            }
-                                        </Template>
-                                    </GridColumn>
-                                </GridColumns>
-                            </SfGrid>
-                        </div>
-                    </div>
-                    <div class="card-footer">
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-12">
+        <MudGrid>
+            <MudItem xs="12">
+                <MudPaper Elevation="4" Class="p-4">
+                    <MudStack Row AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Class="mb-4">
+                        <MudStack Row Spacing="2">
+                            <MudButton Variant="Variant.Filled" Color="MudBlazor.Color.Primary" StartIcon="@Icons.Material.Filled.Download" OnClick="ExportToExcel">
+                                Export Excel
+                            </MudButton>
+                            <MudButton Variant="Variant.Filled" Color="MudBlazor.Color.Secondary" StartIcon="@Icons.Material.Filled.PictureAsPdf" OnClick="ExportToPdf">
+                                Export PDF
+                            </MudButton>
+                            <MudButton Variant="Variant.Filled" Color="MudBlazor.Color.Tertiary" StartIcon="@Icons.Material.Filled.Print" OnClick="PrintGrid">
+                                Print
+                            </MudButton>
+                        </MudStack>
+                    </MudStack>
+                    <MudDataGrid Items="@Vacations"
+                                 T="Vacation"
+                                 MultiSelection="true"
+                                 Bordered="true"
+                                 Striped="true"
+                                 Hover="true"
+                                 Dense="true"
+                                 SortMode="SortMode.Multiple"
+                                 Filterable="true"
+                                 QuickFilter="@_quickFilter">
+                        <ToolBarContent>
+                            <MudText Typo="Typo.h6">Overtime Information</MudText>
+                            <MudSpacer />
+                            <MudTextField @bind-Value="_searchString" Placeholder="Search" Adornment="Adornment.Start" Immediate="true"
+                                          AdornmentIcon="@Icons.Material.Filled.Search" IconSize="MudBlazor.Size.Medium" Class="mt-0"></MudTextField>
+                        </ToolBarContent>
+                        <Columns>
+                            <PropertyColumn Property="e => e.EmployeeId" Title="Employee ID" />
+                            <TemplateColumn T="Vacation" Title="Type">
+                                <CellTemplate>
+                                    @context.Item?.VacationType?.Name
+                                </CellTemplate>
+                            </TemplateColumn>
+                            <PropertyColumn Property="x => x.StartDate" Title="Start Date" Format="dd/MM/yyyy" />
+                            <PropertyColumn Property="x => x.EndDate" Title="End Date" Format="dd/MM/yyyy" />
+                            <PropertyColumn Property="x => x.NumberOfDays" Title="Number of Days" />
+                            <TemplateColumn T="Vacation" Title="Action">
+                                <CellTemplate>
+                                    <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Info" OnClick="@(() => EditVacation(context.Item))" />
+                                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="@(() => DeleteVacation(context.Item))" />
+                                </CellTemplate>
+                            </TemplateColumn>
+                        </Columns>
+                    </MudDataGrid>
+                </MudPaper>
+            </MudItem>
+        </MudGrid>
+    </MudContainer>
 }
-<VacationDialog @ref="vacationDialog"
-                ItemModel="ItemModel"
-                VacationTypes="VacationTypes"
-                HandleSaveOperationEvent="HandleSaveOperationEvent" />
 
 @code {
-    private SfGrid<Vacation>? DefaultGrid;
-    VacationDialog? vacationDialog;
-    Vacation ItemModel = new();
+    Vacation Vacation = new();
     public List<Vacation> Vacations { get; set; } = new();
     public List<VacationType> VacationTypes { get; set; } = new();
     protected async override Task OnInitializedAsync()
@@ -75,60 +77,83 @@
 
     private async Task GetVacations() => Vacations = await vacationService.GetAll(Constants.VacationBaseUrl);
 
-    void OpenDialog() => vacationDialog?.OpenDialog();
+    string _searchString = null;
 
-    private async Task HandleSaveOperationEvent(Vacation item)
+    private Func<Vacation, bool> _quickFilter => x =>
     {
-        var result = await vacationService.Update(item, Constants.VacationBaseUrl);
-        bool successCheck = await DisplayMessage(result.Flag, result.Message);
-
-        if (successCheck)
-        {
-            ItemModel = new();
-            await GetVacations();
-        }
-    }
-
-    private void EditClicked(Vacation item)
-    {
-        ItemModel = item;
-        OpenDialog();
-    }
-
-    private async Task DeleteClicked(Vacation item)
-    {
-        bool confirm = await dialogService.ConfirmAsync($"Are you sure you wanna delete this", "Confirm delete");
-        if (!confirm) return;
-
-        var response = await vacationService.DeleteById(item.EmployeeId, Constants.VacationBaseUrl);
-        var result = await DisplayMessage(response.Flag, response.Message);
-        if (result)
-            await GetVacations();
-    }
-
-    private async Task<bool> DisplayMessage(bool flag, string message)
-    {
-        if (flag)
-        {
-            await dialogService.AlertAsync(message, "Success Operation");
+        if (string.IsNullOrWhiteSpace(_searchString))
             return true;
-        }
-        else
-        {
-            await dialogService.AlertAsync(message, "Alert!");
-            return false;
-        }
-    }
+        if ($"{x.EmployeeId}".Contains(_searchString))
+            return true;
+        if (x.VacationType.Name.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        return false;
+    };
 
     //Excel export / PDF Export
-    public async Task ToolbarClickHandler(ClickEventArgs args)
+    private async Task ExportToPdf()
     {
-        if (args.Item.Text == "Excel Export")
-            await this.DefaultGrid!.ExcelExport()!;
+        var json = JsonSerializer.Serialize(Vacations, new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            });
+        await JS.InvokeVoidAsync("pdfUtils.generateDoctorPdf", json);
+    }
 
-        if (args.Item.Text == "PDF Export")
-            await this.DefaultGrid!.PdfExport()!;
+    private async Task ExportToExcel()
+    {
+        var json = JsonSerializer.Serialize(Vacations);
+        await JS.InvokeVoidAsync("excelUtils.exportDoctorToExcel", json);
+    }
 
+    private async Task PrintGrid()
+    {
+        await JS.InvokeVoidAsync("printGrid");
+    }
+
+    private async Task EditVacation(Vacation vacation)
+    {
+        var parameters = new DialogParameters
+        {
+            { "Vacation", vacation },
+            { "VacationTypes", VacationTypes },
+        };
+
+        var dialog = await DialogService.ShowAsync<VacationDialog>("Update Employe's Vacation", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+            await GetVacations();
+    }
+
+    private async Task DeleteVacation(Vacation vacation)
+    {
+        var parameters = new DialogParameters
+        {
+            { "ContentText", $"Are you sure you want to delete this?" },
+            { "ConfirmButtonText", "Delete" },
+            { "CancelButtonText", "Cancel" },
+            { "Color", Color.Error }
+        };
+
+        var options = new MudBlazor.DialogOptions
+            {
+                CloseButton = true,
+                MaxWidth = MaxWidth.ExtraSmall,
+                FullWidth = true
+            };
+
+        var dialog = await DialogService.ShowAsync<ConfirmDialog>("Confirm Delete", parameters, options);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            var response = await vacationService.DeleteById(vacation.EmployeeId, Constants.VacationBaseUrl);
+            Snackbar.Add(response.Message, response.Flag ? Severity.Success : Severity.Error);
+
+            if (response.Flag)
+                await GetVacations();
+        }
     }
 
     public void Dispose() => allState.Action -= StateHasChanged;

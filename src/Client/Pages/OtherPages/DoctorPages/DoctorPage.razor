@@ -38,12 +38,12 @@
                             <MudTextField @bind-Value="_searchString" Placeholder="Search" Adornment="Adornment.Start" Immediate="true"
                                           AdornmentIcon="@Icons.Material.Filled.Search" IconSize="MudBlazor.Size.Medium" Class="mt-0"></MudTextField>
                         </ToolBarContent>
-                        <Columns>                            
-                            <PropertyColumn Property="e => e.EmployeeId" Title="ID" />
+                        <Columns>
+                            <PropertyColumn Property="e => e.EmployeeId" Title="Employee ID" />
                             <PropertyColumn Property="e => e.MedicalDiagnose" Title="Medical Diagnose" />
                             <PropertyColumn Property="e => e.MedicalRecommendation" Title="Recommendation" />
                             <PropertyColumn Property="@((e) => e.Date.ToString("MM/dd/yyyy"))" Title="Date" />
-                            <TemplateColumn T="Doctor" Title="Menu">
+                            <TemplateColumn T="Doctor" Title="Action">
                                 <CellTemplate>                                   
                                     <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Info" OnClick="@(() => EditDoctor(context.Item))" />
                                     <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="@(() => DeleteDoctor(context.Item))" />

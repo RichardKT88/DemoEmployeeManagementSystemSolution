@@ -2,26 +2,14 @@
     <DialogContent>
         <MudPaper Class="pa-4" Style="width: 320px;">
             <MudForm @ref="_form">
-                <MudTextField Label="Employee Id"
-                              @bind-Value="Doctor.EmployeeId"
-                              Disabled="true"
-                              Variant="Variant.Text"
-                              Class="mt-4" />
+                <MudTextField Label="Employee Id" @bind-Value="Doctor.EmployeeId" Disabled="true" Variant="Variant.Text" Class="mt-4" />
 
-                <MudTextField T="DateTime" Format="yyyy-MM-dd" Label="Date" InputType="InputType.Date" Class="mt-4"  @bind-Value="Doctor.Date" />
+                <MudTextField T="DateTime" Format="yyyy-MM-dd" Label="Date" InputType="InputType.Date" Class="mt-4" @bind-Value="Doctor.Date" />
                
-                <MudTextField Label="Medical Diagnose"
-                              @bind-Value="Doctor.MedicalDiagnose"
-                              Lines="3"
-                              Variant="Variant.Text"
-                              Class="mt-4" />
+                <MudTextField Label="Medical Diagnose" @bind-Value="Doctor.MedicalDiagnose" Lines="3" Variant="Variant.Outlined" Class="mt-4" />
 
-                <MudTextField Label="Recommendation"
-                              @bind-Value="Doctor.MedicalRecommendation"
-                              Lines="3"
-                              TextArea="true"
-                              Variant="Variant.Text"
-                              Class="mt-4" />
+                <MudTextField Label="Recommendation" @bind-Value="Doctor.MedicalRecommendation" Lines="3" Variant="Variant.Outlined" Class="mt-4" />
+
                 <MudStack Row Justify="Justify.FlexEnd" Class="mt-6">
                     <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="Save">Save</MudButton>
                     <MudButton OnClick="Cancel" Color="Color.Secondary" Variant="Variant.Outlined">Cancel</MudButton>

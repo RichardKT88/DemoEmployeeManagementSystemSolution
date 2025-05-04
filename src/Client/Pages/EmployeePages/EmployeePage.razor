@@ -13,9 +13,9 @@
                     <MudPaper Elevation="4" Class="p-4">
                         <MudStack Row AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Class="mb-4">
                             <MudButton Variant="Variant.Outlined"
-                            Color="MudBlazor.Color.Success"
-                            StartIcon="@Icons.Material.Filled.PersonAdd"
-                            OnClick="ShowAddOrUpdateEmployeeButtonClicked">
+                                       Color="MudBlazor.Color.Success"
+                                       StartIcon="@Icons.Material.Filled.PersonAdd"
+                                       OnClick="ShowAddOrUpdateEmployeeButtonClicked">
                                 Add Employee
                             </MudButton>
                             <MudStack Row Spacing="2">
@@ -31,20 +31,20 @@
                             </MudStack>
                         </MudStack>
                         <MudDataGrid Items="@Employees"
-                        T="Employee"
-                        MultiSelection="true"
-                        Bordered="true"
-                        Striped="true"
-                        Hover="true"
-                        Dense="true"
-                        SortMode="SortMode.Multiple"
-                        Filterable="true"
-                        QuickFilter="@_quickFilter">
+                                     T="Employee"
+                                     MultiSelection="true"
+                                     Bordered="true"
+                                     Striped="true"
+                                     Hover="true"
+                                     Dense="true"
+                                     SortMode="SortMode.Multiple"
+                                     Filterable="true"
+                                     QuickFilter="@_quickFilter">
                             <ToolBarContent>
                                 <MudText Typo="Typo.h6">Employees</MudText>
                                 <MudSpacer />
                                 <MudTextField @bind-Value="_searchString" Placeholder="Search" Adornment="Adornment.Start" Immediate="true"
-                                AdornmentIcon="@Icons.Material.Filled.Search" IconSize="MudBlazor.Size.Medium" Class="mt-0"></MudTextField>
+                                              AdornmentIcon="@Icons.Material.Filled.Search" IconSize="MudBlazor.Size.Medium" Class="mt-0"></MudTextField>
                             </ToolBarContent>
                             <Columns>
                                 <TemplateColumn T="Employee" Title="Employee Image">
@@ -62,7 +62,7 @@
                                 <TemplateColumn T="Employee" Title="Menu">
                                     <CellTemplate>
                                         <MudIconButton Icon="@Icons.Material.Filled.Menu"
-                                        Color="Color.Primary" OnClick="@(() => OpenContextMenu(context.Item))" />
+                                                       Color="Color.Primary" OnClick="@(() => OpenContextMenu(context.Item))" />
                                     </CellTemplate>
                                 </TemplateColumn>
                             </Columns>
@@ -74,38 +74,29 @@
     }
 }
 <AddOrUpdateEmployeePage @ref="addOrUpdateEmployeePage"
-Employee="Employee"
-ShowAddOrUpdateEmployee="ShowAddOrUpdatePage"
-NotifyParentFormCloseClicked="NotifyParentFormCloseClicked"
-Countries="DefaultCountries"
-Cities="DefaultCities"
-Towns="DefaultTowns"
-GeneralDepartments="DefaultGeneralDepartments"
-Departments="DefaultDepartments"
-Branches="DefaultBranches"                       
-HandleSaveEmployeeCLickedEvent="HandleSaveEmployeeCLickedEvent">
+                         Employee="Employee"
+                         ShowAddOrUpdateEmployee="ShowAddOrUpdatePage"
+                         NotifyParentFormCloseClicked="NotifyParentFormCloseClicked"
+                         Countries="DefaultCountries"
+                         Cities="DefaultCities"
+                         Towns="DefaultTowns"
+                         GeneralDepartments="DefaultGeneralDepartments"
+                         Departments="DefaultDepartments"
+                         Branches="DefaultBranches"
+                         HandleSaveEmployeeCLickedEvent="HandleSaveEmployeeCLickedEvent">
 </AddOrUpdateEmployeePage>
 
 <EmployeeDetailPage EmployeeDetails="Employee"
-ShowDetailsPage="ShowDetailsPage"
-HandleDetailsPageCloseBtnClicked="HandleDetailsPageCloseBtnClicked" />
-@* <ContextMenu 
+                    ShowDetailsPage="ShowDetailsPage"
+                    HandleDetailsPageCloseBtnClicked="HandleDetailsPageCloseBtnClicked" />
+
+<ContextMenu HandleViewClicked="ViewClicked"
+             HandleDeleteClicked="DeleteClicked"
+             HandleEditClicked="EditClicked"
              HandleAddHealthClicked="AddHealthClicked"
              HandleAddOvertimeClicked="AddOvertimeClicked"
              HandleAddSanctionClicked="AddSanctionClicked"
-             HandleAddVacationClicked="AddVacationClicked" /> *@
-<ContextMenu HandleViewClicked="ViewClicked"
-HandleDeleteClicked="DeleteClicked"
-HandleEditClicked="EditClicked"
-HandleAddHealthClicked="AddHealthClicked" />
-
-@* <DoctorDialog @ref="doctorDialog" Doctor="Doctor" HandleSaveOperationEvent="SaveHealthEvent" />
-
-<OvertimeDialog @ref="overtimeDialog" ItemModel="Overtime" OvertimeTypes="OvertimeTypes" HandleSaveOperationEvent="SaveOvertimeEvent" />
-
-<SanctionDialog @ref="sanctionDialog" ItemModel="Sanction" SanctionTypes="SanctionTypes" HandleSaveOperationEvent="SaveSanctionEvent" />
-
-<VacationDialog @ref="vacationDialog" ItemModel="Vacation" VacationTypes="VacationTypes" HandleSaveOperationEvent="SaveVacationEvent" /> *@
+             HandleAddVacationClicked="AddVacationClicked" />
 
 @code {
     private SfGrid<Employee>? DefaultGrid;
@@ -128,9 +119,9 @@ HandleAddHealthClicked="AddHealthClicked" />
         allState.Action += StateHasChanged;
         await LoadEmployees();
         await LoadDefaults();
-        /*await GetOvertimeTypes();
+        await GetOvertimeTypes();
         await GetSanctionTypes();
-        await GetVacationTypes();*/
+        await GetVacationTypes();
     }
 
     private async Task LoadDefaults()
@@ -179,7 +170,7 @@ HandleAddHealthClicked="AddHealthClicked" />
 
     public bool ShowMainPage { get; set; } = true;
     public bool ShowAddOrUpdatePage { get; set; } = false;
-    public Employee SelectedEmployee { get; set; } = new();   
+    public Employee SelectedEmployee { get; set; } = new();
     public bool ShowDetailsPage { get; set; } = false;
 
     void ShowAddOrUpdateEmployeeButtonClicked()
@@ -197,10 +188,10 @@ HandleAddHealthClicked="AddHealthClicked" />
                 ["HandleViewClicked"] = EventCallback.Factory.Create(this, ViewClicked),
                 ["HandleEditClicked"] = EventCallback.Factory.Create(this, EditClicked),
                 ["HandleDeleteClicked"] = EventCallback.Factory.Create(this, DeleteClicked),
-                ["OnAddVacation"] = EventCallback.Factory.Create(this, HandleAddVacationClicked),
-                ["OnAddOvertime"] = EventCallback.Factory.Create(this, HandleAddOvertimeClicked),
+                ["HandleAddVacationClicked"] = EventCallback.Factory.Create(this, AddVacationClicked),
+                ["HandleAddOvertimeClicked"] = EventCallback.Factory.Create(this, AddOvertimeClicked),
                 ["HandleAddHealthClicked"] = EventCallback.Factory.Create(this, AddHealthClicked),
-                ["OnAddSanction"] = EventCallback.Factory.Create(this, HandleAddSanctionClicked)
+                ["HandleAddSanctionClicked"] = EventCallback.Factory.Create(this, AddSanctionClicked)
 
             };
 
@@ -218,7 +209,7 @@ HandleAddHealthClicked="AddHealthClicked" />
         SelectedEmployee = new();
     }
     //Edit clicked
-    private async Task EditClicked() 
+    private async Task EditClicked()
     {
         //EmployeeGrouping1
         addOrUpdateEmployeePage!.Employee.Id = SelectedEmployee.Id;
@@ -248,8 +239,8 @@ HandleAddHealthClicked="AddHealthClicked" />
         ShowMainPage = false;
     }
     //Delete clicked
-    private async Task DeleteClicked() 
-    {       
+    private async Task DeleteClicked()
+    {
         var parameters = new DialogParameters
         {
             { "ContentText", $"Are you sure you want to delete {SelectedEmployee.Name}?" },
@@ -279,8 +270,52 @@ HandleAddHealthClicked="AddHealthClicked" />
             }
         }
     }
-    private Task HandleAddVacationClicked() => Task.CompletedTask;
-    private Task HandleAddOvertimeClicked() => Task.CompletedTask;
+    //Add Vacation clicked
+    private async Task GetVacationTypes() => VacationTypes = await vacationTypeService.GetAll(Constants.VacationTypeBaseUrl);
+    Vacation Vacation = new();
+    List<VacationType> VacationTypes = [];
+    private async Task AddVacationClicked()
+    {
+        Vacation.EmployeeId = SelectedEmployee.Id;
+        var parameters = new DialogParameters
+        {
+            { "Vacation", Vacation },
+            { "VacationTypes", VacationTypes },
+        };
+
+        var dialog = await DialogService.ShowAsync<VacationDialog>("Add Employee Vacation Issue", parameters);
+        var result = await dialog.Result;
+        if (!result.Canceled)
+        {
+            SelectedEmployee = new();
+            Vacation = new();
+        }
+
+    }
+
+    //Add Overtime clicked
+    private async Task GetOvertimeTypes() => OvertimeTypes = await overtimeTypeService.GetAll(Constants.OvertimeTypeBaseUrl);
+    Overtime Overtime = new();
+    List<OvertimeType> OvertimeTypes = [];
+    private async Task AddOvertimeClicked()
+    {
+        Overtime.EmployeeId = SelectedEmployee.Id;
+        var parameters = new DialogParameters
+        {
+            { "Overtime", Overtime },
+            { "OvertimeTypes", OvertimeTypes },
+        };
+
+        var dialog = await DialogService.ShowAsync<OvertimeDialog>("Add Employee Overtime Issue", parameters);
+        var result = await dialog.Result;
+        if (!result.Canceled)
+        {
+            SelectedEmployee = new();
+            Overtime = new();
+        }
+
+    }
+
     //Add Health clicked
     Doctor Doctor = new();
     private async Task AddHealthClicked()
@@ -294,159 +329,95 @@ HandleAddHealthClicked="AddHealthClicked" />
         var dialog = await DialogService.ShowAsync<DoctorDialog>("Add Employee Health Issue", parameters);
         var result = await dialog.Result;
         if (!result.Canceled)
-        {           
+        {
             SelectedEmployee = new();
             Doctor = new();
-            await LoadEmployees();
         }
-    
+
     }
-  
-    private Task HandleAddSanctionClicked() => Task.CompletedTask;
 
-      //Details employee close btn clicked
-        void HandleDetailsPageCloseBtnClicked()
+    //Add Sanction clicked
+    private async Task GetSanctionTypes() => SanctionTypes = await sanctionTypeService.GetAll(Constants.SanctionTypeBaseUrl);
+    Sanction Sanction = new();
+    List<SanctionType> SanctionTypes = [];
+    private async Task AddSanctionClicked()
+    {
+        Sanction.EmployeeId = SelectedEmployee.Id;
+        var parameters = new DialogParameters
         {
-            ShowDetailsPage = false;
-            ShowMainPage = true;
-        }
-
-
-        //Display message using dialog service
-        private async Task<bool> DisplayMessage(bool flag, string message)
-        {
-            if (flag)
-            {
-                Snackbar.Add(message, Severity.Success);
-                return true;
-            }
-            else
-            {
-                Snackbar.Add(message, Severity.Error);
-                return false;
-            }
-        }
-        public void Dispose() => allState.Action -= StateHasChanged;
-
-        string _searchString = null;
-
-        private Func<Employee, bool> _quickFilter => x =>
-        {
-            if (string.IsNullOrWhiteSpace(_searchString))
-                return true;
-            if (x.Name.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
-                return true;
-            if (x.JobName.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
-                return true;
-            if (x.Branch.Name.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
-                return true;
-            if (x.Town.Name.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
-                return true;
-            if ($"{x.CivilId} {x.FileNumber} {x.TelephoneNumber}".Contains(_searchString))
-                return true;
-            return false;
+            { "Sanction", Sanction },
+            { "SanctionTypes", SanctionTypes },
         };
-        //Excel export / PDF Export
-        private async Task ExportToPdf()
+
+        var dialog = await DialogService.ShowAsync<SanctionDialog>("Add Employee Sanction Issue", parameters);
+        var result = await dialog.Result;
+        if (!result.Canceled)
         {
-            var json = JsonSerializer.Serialize(Employees, new JsonSerializerOptions
+            SelectedEmployee = new();
+            Sanction = new();
+        }
+
+    }
+
+    //Details employee close btn clicked
+    void HandleDetailsPageCloseBtnClicked()
+    {
+        ShowDetailsPage = false;
+        ShowMainPage = true;
+    }
+
+    //Display message using dialog service
+    private async Task<bool> DisplayMessage(bool flag, string message)
+    {
+        if (flag)
+        {
+            Snackbar.Add(message, Severity.Success);
+            return true;
+        }
+        else
+        {
+            Snackbar.Add(message, Severity.Error);
+            return false;
+        }
+    }
+    public void Dispose() => allState.Action -= StateHasChanged;
+
+    string _searchString = null;
+
+    private Func<Employee, bool> _quickFilter => x =>
+    {
+        if (string.IsNullOrWhiteSpace(_searchString))
+            return true;
+        if (x.Name.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (x.JobName.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (x.Branch.Name.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (x.Town.Name.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if ($"{x.CivilId} {x.FileNumber} {x.TelephoneNumber}".Contains(_searchString))
+            return true;
+        return false;
+    };
+    //Excel export / PDF Export
+    private async Task ExportToPdf()
+    {
+        var json = JsonSerializer.Serialize(Employees, new JsonSerializerOptions
             {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
             });
         await JS.InvokeVoidAsync("pdfUtils.generateEmployeePdf", json);
-        }
+    }
 
-        private async Task ExportToExcel()
-        {
-            var json = JsonSerializer.Serialize(Employees);
-            await JS.InvokeVoidAsync("excelUtils.exportEmployeeToExcel", json);
-        }
-
-        private async Task PrintGrid()
-        {
-            await JS.InvokeVoidAsync("printGrid");
-        }
-
-    /*private async Task GetOvertimeTypes() => OvertimeTypes = await overtimeTypeService.GetAll(Constants.OvertimeTypeBaseUrl);
-
-    private async Task GetSanctionTypes() => SanctionTypes = await sanctionTypeService.GetAll(Constants.SanctionTypeBaseUrl);
-
-    private async Task GetVacationTypes() => VacationTypes = await vacationTypeService.GetAll(Constants.VacationTypeBaseUrl);
-
-   
-
-    //Add Overtime clicked
-    OvertimeDialog? overtimeDialog;
-    Overtime Overtime = new();
-    List<OvertimeType> OvertimeTypes = [];
-    private void AddOvertimeClicked()
+    private async Task ExportToExcel()
     {
-        Overtime.EmployeeId = SelectedEmployee.Id;
-        contextMenu!.CloseContextMenu();
-        overtimeDialog!.OpenDialog();
-        }
+        var json = JsonSerializer.Serialize(Employees);
+        await JS.InvokeVoidAsync("excelUtils.exportEmployeeToExcel", json);
+    }
 
-    //Save Overtime Handler
-    async Task SaveOvertimeEvent(Overtime item)
+    private async Task PrintGrid()
     {
-        item.EmployeeId = SelectedEmployee.Id;
-        var (flag, message) = await overtimeService.Insert(item, Constants.OvertimeBaseUrl);
-        var response = await DisplayMessage(flag, message);
-        if (response)
-        {
-            SelectedEmployee = new();
-            Overtime = new();
-            overtimeDialog!.CloseDialog();
-            }
-        }
-
-    //Add Sanction clicked
-    SanctionDialog? sanctionDialog;
-    Sanction Sanction = new();
-    List<SanctionType> SanctionTypes = [];
-    private void AddSanctionClicked()
-    {
-        Sanction.EmployeeId = SelectedEmployee.Id;
-        contextMenu!.CloseContextMenu();
-        sanctionDialog!.OpenDialog();
-        }
-
-    //Save Sanction Handler
-    async Task SaveSanctionEvent(Sanction item)
-    {
-        item.EmployeeId = SelectedEmployee.Id;
-        var (flag, message) = await sanctionService.Insert(item, Constants.SanctionBaseUrl);
-        var response = await DisplayMessage(flag, message);
-        if (response)
-        {
-            SelectedEmployee = new();
-            Sanction = new();
-            sanctionDialog!.CloseDialog();
-            }
-        }
-
-    // Add Vacation clicked
-    VacationDialog? vacationDialog;
-    Vacation Vacation = new();
-    List<VacationType> VacationTypes = [];
-    private void AddVacationClicked()
-    {
-        Vacation.EmployeeId = SelectedEmployee.Id;
-        contextMenu!.CloseContextMenu();
-        vacationDialog!.OpenDialog();
-        }
-
-    //Save Vacation Handler
-    async Task SaveVacationEvent(Vacation item)
-    {
-        item.EmployeeId = SelectedEmployee.Id;
-        var (flag, message) = await vacationService.Insert(item, Constants.VacationBaseUrl);
-        var response = await DisplayMessage(flag, message);
-        if (response)
-        {
-            SelectedEmployee = new();
-            Vacation = new();
-            vacationDialog!.CloseDialog();
-            }
-        }*/
+        await JS.InvokeVoidAsync("printGrid");
+    }
 }
