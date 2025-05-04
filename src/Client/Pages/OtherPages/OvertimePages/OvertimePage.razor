@@ -119,7 +119,7 @@
             { "OvertimeTypes", OvertimeTypes },
         };
 
-        var dialog = await DialogService.ShowAsync<OvertimeDialog>("Update Overtime", parameters);
+        var dialog = await DialogService.ShowAsync<OvertimeDialog>("Update Employe's Overtime", parameters);
         var result = await dialog.Result;
 
         if (!result.Canceled)

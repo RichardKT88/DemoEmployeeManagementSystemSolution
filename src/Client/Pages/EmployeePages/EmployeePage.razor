@@ -283,7 +283,7 @@
             { "VacationTypes", VacationTypes },
         };
 
-        var dialog = await DialogService.ShowAsync<VacationDialog>("Add Employee Vacation Issue", parameters);
+        var dialog = await DialogService.ShowAsync<VacationDialog>("Add Employe's Vacation", parameters);
         var result = await dialog.Result;
         if (!result.Canceled)
         {
@@ -306,7 +306,7 @@
             { "OvertimeTypes", OvertimeTypes },
         };
 
-        var dialog = await DialogService.ShowAsync<OvertimeDialog>("Add Employee Overtime Issue", parameters);
+        var dialog = await DialogService.ShowAsync<OvertimeDialog>("Add Employe's Overtime", parameters);
         var result = await dialog.Result;
         if (!result.Canceled)
         {
@@ -349,7 +349,7 @@
             { "SanctionTypes", SanctionTypes },
         };
 
-        var dialog = await DialogService.ShowAsync<SanctionDialog>("Add Employee Sanction Issue", parameters);
+        var dialog = await DialogService.ShowAsync<SanctionDialog>("Add Employe'a Sanction", parameters);
         var result = await dialog.Result;
         if (!result.Canceled)
         {
