@@ -18,10 +18,6 @@
 @using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Authorization
 @using ClientLibrary.Services.Contracts
-@using Syncfusion.Blazor.Popups
-@using Syncfusion.Blazor.DropDowns
-@using Syncfusion.Blazor.Grids
-@using Syncfusion.Blazor.Navigations
 
 @using Client.Pages.OtherPages.DoctorPages
 @using Client.Pages.OtherPages.VacationPages
@@ -44,9 +40,6 @@
 
 @* /Navbar tabs communication state handling *@
 @inject AllState allState
-
-@* /Syncfusion dialog service *@
-@inject SfDialogService dialogService
 
 @* /General Departments / Department / Branch *@
 @inject IGenericServiceInterface<GeneralDepartment> generalDepartmentService

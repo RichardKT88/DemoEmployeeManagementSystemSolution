@@ -9,8 +9,6 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using MudBlazor.Services;
-using Syncfusion.Blazor;
-using Syncfusion.Blazor.Popups;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -24,7 +22,6 @@ builder.Services.AddHttpClient("SystemApiClient", client =>
     client.BaseAddress = new Uri("https://localhost:7195/");
 }).AddHttpMessageHandler<CustomHttpHandler>();
 
-Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("Ngo9BigBOggjHTQxAR8/V1NHaF5cXmVCf1FpRmJGdld5fUVHYVZUTXxaS00DNHVRdkdnWXxceHRTRWZdVUR0XUM=");
 
 
 //builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https://localhost:7195/") });
@@ -60,8 +57,5 @@ builder.Services.AddScoped<IGenericServiceInterface<Doctor>, GenericServiceImple
 builder.Services.AddScoped<IGenericServiceInterface<Employee>, GenericServiceImplementation<Employee>>();
 
 builder.Services.AddScoped<AllState>();
-
-builder.Services.AddSyncfusionBlazor();
-builder.Services.AddScoped<SfDialogService>();
 
 await builder.Build().RunAsync();
